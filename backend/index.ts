@@ -16,6 +16,7 @@ connectToDb();
 const allowedOrigins = [
   process.env.LOCAL_FRONTEND_URL,
   process.env.PROD_FRONTEND_URL,
+  ...(process.env.EXTRA_FRONTEND_URLS?.split(",").map((url) => url.trim()) ?? []),
 ].filter(Boolean) as string[];
 
 app.use(
