@@ -34,5 +34,7 @@ export const MessageSchema = z.object({
   role: z.enum(["agent", "user", "developer"]),
   message: z.string().optional(),
   messageType: z.enum(["image", "text"]),
+  threadId: z.string().optional(),
+  language: LanguageSchema.default("en"),
 });
 
