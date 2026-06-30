@@ -14,7 +14,7 @@
     "dotenv": "^17.3.1"
   },
   "scripts": {
-    "dev": "bun index.ts",
+    "dev": "bun --watch index.ts",
     "build": "bun install",
     "start": "bun index.ts"
   },
