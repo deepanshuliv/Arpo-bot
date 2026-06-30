@@ -5,6 +5,9 @@ export async function connectToDb() {
     await mongoose.connect(process.env.MONGO_DB_API_KEY!);
     console.log("Mongo DB is Connected");
   } catch (error) {
-    console.log("Mongo DB is NOT Connected");
+    console.log(
+      "Mongo DB is NOT Connected:",
+      error instanceof Error ? error.message : error,
+    );
   }
 }
