@@ -33,6 +33,10 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 # Finder (MacOS) folder config
 .DS_Store
 
+# Local agent skills and their installer lockfile
+/.agents/
+/skills-lock.json
+
 
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
