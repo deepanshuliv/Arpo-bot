@@ -2,7 +2,7 @@ import { Router, type Request, type Response } from "express";
 import { authMiddleware, adminMiddleware } from "../utils/middleware";
 import upload, { deleteFile } from "../utils/multer";
 import { processPdf } from "../utils/pdfloader";
-import { vectorStore } from "../utils/vector";
+import { pineconeIndex, vectorStore } from "../utils/vector";
 
 const pineConeRouter = Router();
 
