@@ -1,6 +1,10 @@
 import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { Users } from "../models/db_models";
+import { STAFF_ROLES, Users } from "../models/db_models";
+
+export function isStaff(role: string | undefined) {
+  return STAFF_ROLES.includes(role as (typeof STAFF_ROLES)[number]);
+}
 
 declare global {
   namespace Express {
@@ -51,6 +55,15 @@ export async function authMiddleware(
   }
 }
 
+function deny(res: Response) {
+  return res.status(403).json({
+    success: false,
+    code: "FORBIDDEN",
+    message: "Access denied. Admin privileges required.",
+  });
+}
+
+/** Admins and sub-admins (knowledge base management). Re-checks the database role. */
 export async function adminMiddleware(
   req: Request,
   res: Response,
