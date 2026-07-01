@@ -81,3 +81,22 @@ export async function adminMiddleware(
     });
   }
 }
+
+/** Main admin only (team management). */
+export async function superAdminMiddleware(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const user = await Users.findById(req.userId).select("role");
+    if (!user || user.role !== "admin") return deny(res);
+    req.userRole = "admin";
+    next();
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Authorization check failed",
+    });
+  }
+}
