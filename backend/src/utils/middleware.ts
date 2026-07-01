@@ -70,22 +70,9 @@ export async function adminMiddleware(
   next: NextFunction,
 ) {
   try {
-
-    if (req.userRole !== "admin") {
-      return res.status(403).json({
-        success: false,
-        message: "Access denied. Admin privileges required.",
-      });
-    }
-
     const user = await Users.findById(req.userId).select("role");
-    if (!user || user.role !== "admin") {
-      return res.status(403).json({
-        success: false,
-        message: "Access denied. Admin privileges required.",
-      });
-    }
-
+    if (!user || !isStaff(user.role ?? undefined)) return deny(res);
+    req.userRole = user.role!;
     next();
   } catch (error) {
     return res.status(500).json({
