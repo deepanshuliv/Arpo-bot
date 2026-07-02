@@ -63,14 +63,10 @@ async function withRetry<T>(
     } catch (error: any) {
       lastError = error;
 
-      if (
-        error?.status === 429 ||
-        error?.status === 503 ||
-        error?.status === 504
-      ) {
+      if (isBusy(error) && i < maxRetries - 1) {
         const delay = baseDelay * Math.pow(2, i);
         console.warn(
-          `[WARN] Gemini Rate Limit hit (429). Retrying in ${delay}ms... (Attempt ${i + 1}/${maxRetries})`,
+          `[WARN] Gemini busy (${error.status}). Retrying in ${delay}ms... (Attempt ${i + 1}/${maxRetries})`,
         );
         await new Promise((resolve) => setTimeout(resolve, delay));
         continue;
@@ -111,6 +107,7 @@ interface CallLlmInterface {
   role: "agent" | "user";
   query: string;
   history?: { role: "user" | "assistant" | "system"; content: string }[];
+  language?: Language;
 }
 
 function formatContext(docs: RetrivedDocs[]): string {
@@ -129,10 +126,7 @@ function formatContext(docs: RetrivedDocs[]): string {
 
 const SYSTEM_PROMPT_TEMPLATE = `You are ARPO, the official Scout & Guide AI assistant for Bharat Scouts and Guides (BSG India). You ONLY answer based on the uploaded documents.
 
-⚠️ LANGUAGE RULE ⚠️
-- ALWAYS respond in HINGLISH ONLY (English script, but conversational Hindi/English mix).
-- No Devanagari script. No dual translations.
-- ONLY use pure Hindi if explicitly requested.
+{{LANGUAGE_RULE}}
 
 ═══ CORE IDENTITY ═══
 - Authoritative reference for BSG India rules, awards, and syllabus.
@@ -151,6 +145,7 @@ export async function callLlm({
   role,
   query,
   history,
+  language = "en",
 }: CallLlmInterface) {
   const context = formatContext(retrivedDocs);
 
