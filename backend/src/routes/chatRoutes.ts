@@ -46,10 +46,12 @@ const chatLimiter = rateLimit({
 
     res.status(429).json({
       success: false,
-      message: `You have reached your limit of 5 questions per hour.`,
-      limit: 5,
+      code: "RATE_LIMITED",
+      message: `You have reached your limit of ${USER_HOURLY_LIMIT} questions per hour.`,
+      limit: USER_HOURLY_LIMIT,
       remaining: 0,
-      refillIn: `${minutesLeft} minutes`,
+      refillIn: minutesLeft,
+      resetTime,
     });
   },
   standardHeaders: true,
@@ -67,42 +69,72 @@ export interface RetrivedDocs {
   chunkIndex: number | null;
 }
 
-async function getOrCreateThread(userId: string) {
+function toThreadSummary(thread: any) {
+  return {
+    _id: thread._id,
+    title: thread.title,
+    updatedAt: thread.updatedAt,
+    createdAt: thread.createdAt,
+  };
+}
 
-  const user = await Users.findById(userId);
-  if (user?.thread_id && user.thread_id.length > 0) {
-    const thread = await Threads.findById(user.thread_id[0]);
-    if (thread) return thread;
-  }
+function toClientMessage(m: any) {
+  return {
+    _id: m._id,
+    role: m.role,
+    message_description: m.message_description,
+    sources: m.sources ?? [],
+    createdAt: m.createdAt,
+  };
+}
 
+/** A thread the user is an author of, or null. */
+async function findUserThread(userId: string, threadId: string) {
+  if (!mongoose.isValidObjectId(threadId)) return null;
+  return Threads.findOne({ _id: threadId, authors: userId });
+}
+
+function titleFrom(message: string | undefined, isImage: boolean) {
+  const text = (message ?? "").replace(/\s+/g, " ").trim();
+  if (!text) return isImage ? "Image question" : "New conversation";
+  return text.length > 60 ? `${text.slice(0, 57)}…` : text;
+}
+
+async function createThread(userId: string, title: string) {
   const thread = await Threads.create({
-    title: "Default Chat",
+    title,
     messages: [],
     authors: [userId],
   });
-
-  await Users.findByIdAndUpdate(userId, {
-    $push: { thread_id: thread._id },
-  });
-
+  await Users.findByIdAndUpdate(userId, { $push: { thread_id: thread._id } });
   return thread;
 }
 
-chatRouter.get(
-  "/chats",
-  authMiddleware,
+/* ───────────── Conversations ───────────── */
 
+chatRouter.get("/threads", authMiddleware, async (req: Request, res: Response) => {
+  try {
+    const threads = await Threads.find({ authors: req.userId })
+      .sort({ updatedAt: -1 })
+      .limit(100);
+
+    return res.status(200).json({
+      success: true,
+      data: { threads: threads.map(toThreadSummary) },
+    });
+  } catch (error) {
+    console.log("[ERROR]", error);
+    return fail(res, 500, "SERVER_ERROR", "Internal server error");
+  }
+});
+
+chatRouter.get(
+  "/threads/:threadId/messages",
+  authMiddleware,
   async (req: Request, res: Response) => {
     try {
-      const userId = req.userId;
-      if (!userId) {
-        return res.status(401).json({
-          success: false,
-          message: "Unauthorized",
-        });
-      }
-
-      const thread = await getOrCreateThread(userId);
+      const thread = await findUserThread(req.userId!, String(req.params.threadId));
+      if (!thread) return fail(res, 404, "NOT_FOUND", "Conversation not found");
 
       const messages = await Messages.find({ thread_id: thread._id }).sort({
         createdAt: 1,
