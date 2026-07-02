@@ -1,21 +1,43 @@
 import { Router, type Request, type Response } from "express";
+import mongoose from "mongoose";
 import { MessageSchema } from "../utils/types";
 import { Messages, Threads, Users } from "../models/db_models";
 import { vectorStore } from "../utils/vector";
-import { callLlm, describeImage } from "../utils/openai";
+import { AiBusyError, callLlm, describeImage } from "../utils/openai";
 import upload, { deleteFile } from "../utils/multer";
-import { authMiddleware } from "../utils/middleware";
-import rateLimit from "express-rate-limit";
+import { authMiddleware, isStaff } from "../utils/middleware";
+import rateLimit, { ipKeyGenerator } from "express-rate-limit";
+
+const USER_HOURLY_LIMIT = 5;
+
+async function currentRole(userId: string | undefined) {
+  if (!userId) return undefined;
+  const user = await Users.findById(userId).select("role");
+  return user?.role ?? undefined;
+}
+
+// Error codes let the frontend show the message in the user's language.
+type ErrorCode =
+  | "UNAUTHORIZED"
+  | "INVALID_INPUT"
+  | "RATE_LIMITED"
+  | "IMAGE_FAILED"
+  | "NO_ANSWER"
+  | "NOT_FOUND"
+  | "AI_UNAVAILABLE"
+  | "AI_BUSY"
+  | "SERVER_ERROR";
+
+function fail(res: Response, status: number, code: ErrorCode, message: string) {
+  return res.status(status).json({ success: false, code, message });
+}
 
 const chatLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, 
-  limit: (req: any) => {
-
-    if (req.userRole === "admin") return 1000;
-    return 5;
-  },
-
-  keyGenerator: (req: any) => req.userId || req.ip,
+  windowMs: 60 * 60 * 1000,
+  limit: USER_HOURLY_LIMIT,
+  // Admins and sub-admins have no question limit (live role, so removed access applies at once)
+  skip: async (req: any) => isStaff(await currentRole(req.userId)),
+  keyGenerator: (req: any) => req.userId || ipKeyGenerator(req.ip),
   handler: (req: any, res: Response) => {
     const resetTime = req.rateLimit.resetTime;
     const minutesLeft = Math.ceil(
