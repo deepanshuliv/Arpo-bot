@@ -3,6 +3,48 @@ import type { ChatCompletionMessageParam } from "openai/resources/chat/completio
 import fs from "fs/promises";
 import path from "path";
 import type { RetrivedDocs } from "../routes/chatRoutes";
+import type { Language } from "./types";
+
+// The user picks the reply language in the app's EN / हि toggle.
+const LANGUAGE_RULES: Record<Language, string> = {
+  en: `═══ LANGUAGE ═══
+- Reply in clear, simple English.
+- Keep BSG terms as they are (e.g. Rajya Puraskar, Pravesh, patrol, troop).`,
+  hi: `═══ LANGUAGE ═══
+- Reply in simple, natural Hindi written in Devanagari script (हिंदी).
+- The source books are in English: understand them, then answer in Hindi. Do not reply in English or Hinglish.
+- Keep BSG award and rank names as commonly used (e.g. राज्य पुरस्कार, प्रवेश), and keep file names in citations exactly as given.`,
+};
+
+// Answer / image model. "gemini-flash-latest" follows Google's current stable
+// Flash model, so a model retirement doesn't break answers. Override in .env.
+const CHAT_MODEL = process.env.GEMINI_MODEL || "gemini-flash-latest";
+// Used when the main model is overloaded or rate-limited
+const FALLBACK_MODEL = process.env.GEMINI_FALLBACK_MODEL || "gemini-flash-lite-latest";
+
+/** Thrown when every model is overloaded / rate-limited, so the API can say "busy". */
+export class AiBusyError extends Error {
+  constructor() {
+    super("Gemini is busy or rate-limited");
+    this.name = "AiBusyError";
+  }
+}
+
+const isBusy = (error: any) => [429, 503, 504].includes(error?.status);
+
+/** Runs `call` with the main model, then the fallback model if the first is busy. */
+async function withModelFallback<T>(call: (model: string) => Promise<T>): Promise<T> {
+  const models = [...new Set([CHAT_MODEL, FALLBACK_MODEL])];
+  for (const model of models) {
+    try {
+      return await withRetry(() => call(model), 2, 1500);
+    } catch (error: any) {
+      if (!isBusy(error)) throw error;
+      console.warn(`[WARN] ${model} is busy (${error.status}); trying the next model`);
+    }
+  }
+  throw new AiBusyError();
+}
 
 const openai = new OpenAI({
   apiKey: process.env.GOOGLE_API_KEY,
