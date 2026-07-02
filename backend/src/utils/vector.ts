@@ -62,7 +62,7 @@ export const embeddings = new GeminiEmbeddings768({
 });
 
 const pinecone = new PineconeClient();
-const pineconeIndex = pinecone.Index(
+export const pineconeIndex = pinecone.Index(
   process.env.PINECONE_INDEX!,
   process.env.PINECONE_HOST!,
 );
