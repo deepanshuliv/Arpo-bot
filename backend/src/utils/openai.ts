@@ -150,7 +150,7 @@ export async function callLlm({
   const context = formatContext(retrivedDocs);
 
   const systemContent =
-    SYSTEM_PROMPT_TEMPLATE +
+    SYSTEM_PROMPT_TEMPLATE.replace("{{LANGUAGE_RULE}}", LANGUAGE_RULES[language]) +
     `\n\n═══ RETRIEVED CONTEXT FROM UPLOADED BOOKS ═══\n${context}\n═══ END OF CONTEXT ═══`;
 
   const messages: ChatCompletionMessageParam[] = [
@@ -197,21 +197,15 @@ export async function callLlm({
   }
 
   try {
-    const reply = await withRetry(async () => {
-      const response = await openai.chat.completions.create({
-        model: "gemini-2.0-flash",
-        messages,
-      });
+    const reply = await withModelFallback(async (model) => {
+      const response = await openai.chat.completions.create({ model, messages });
       return response.choices[0]?.message?.content ?? "";
     });
 
     console.log("LLM Response:", reply.slice(0, 200) + "...");
-    return reply;
+    return reply || null;
   } catch (error: any) {
-    if (error?.status === 429) {
-      console.error("Gemini API Rate Limit exceeded after retries.");
-      return "Rate limit exceeded. Please try again in 1 minute.";
-    }
+    if (error instanceof AiBusyError) throw error;
     console.error("Error calling Gemini API:", error);
     return null;
   }
@@ -228,9 +222,9 @@ export async function describeImage(imagePath: string): Promise<string | null> {
   if (!base64Image) return null;
 
   try {
-    const description = await withRetry(async () => {
+    const description = await withModelFallback(async (model) => {
       const response = await openai.chat.completions.create({
-        model: "gemini-2.0-flash",
+        model,
         messages: [
           {
             role: "user",
@@ -255,6 +249,7 @@ export async function describeImage(imagePath: string): Promise<string | null> {
     console.log("Image Description:", description);
     return description;
   } catch (error) {
+    if (error instanceof AiBusyError) throw error;
     console.error("Error describing image:", error);
     return null;
   }
