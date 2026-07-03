@@ -283,30 +283,17 @@ chatRouter.post(
 
       let searchQuery: string;
 
-      if (messageType === "image" && imagePath) {
-
+      if (isImage && imagePath) {
         const imageDescription = await describeImage(imagePath);
         if (!imageDescription) {
-          return res.status(500).json({
-            success: false,
-            message: "Failed to analyze the image",
-          });
+          await discardFreshThread();
+          return fail(res, 500, "IMAGE_FAILED", "Failed to analyze the image");
         }
 
-        searchQuery = message
-          ? `${message} ${imageDescription}`
-          : imageDescription;
-
+        searchQuery = message ? `${message} ${imageDescription}` : imageDescription;
         console.log("[Image Search Query]:", searchQuery);
       } else {
-
-        if (!message) {
-          return res.status(400).json({
-            success: false,
-            message: "Message is required for text queries",
-          });
-        }
-        searchQuery = message;
+        searchQuery = message!;
       }
 
       const retrivedDocs: RetrivedDocs[] = [];
