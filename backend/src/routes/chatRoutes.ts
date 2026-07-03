@@ -329,15 +329,17 @@ chatRouter.post(
         query: message || searchQuery,
         role: "user",
         history,
-        ...(messageType === "image" && imagePath && { imageUrl: imagePath }),
+        language,
+        ...(isImage && imagePath && { imageUrl: imagePath }),
       });
 
       if (!llmResponse) {
-        return res.status(500).json({
-          success: false,
-          message: "Failed to generate a response",
-        });
+        await discardFreshThread();
+        return fail(res, 500, "NO_ANSWER", "Failed to generate a response");
       }
+
+      // Keep the passages with the answer, minus the bulky raw metadata
+      const sources = retrivedDocs.map(({ metaData, ...rest }) => rest);
 
       const saveAgentMessage = await Messages.create({
         role: "agent",
