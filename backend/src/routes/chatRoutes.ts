@@ -142,23 +142,14 @@ chatRouter.get(
 
       return res.status(200).json({
         success: true,
-        message: "Messages fetched successfully",
         data: {
-          messages: messages.map((m) => ({
-            _id: m._id,
-            role: m.role,
-            message_description: m.message_description,
-            createdAt: (m as any).createdAt,
-          })),
-          threadId: thread._id,
+          thread: toThreadSummary(thread),
+          messages: messages.map(toClientMessage),
         },
       });
     } catch (error) {
       console.log("[ERROR]", error);
-      res.status(500).json({
-        success: false,
-        message: "Internal server error",
-      });
+      return fail(res, 500, "SERVER_ERROR", "Internal server error");
     }
   },
 );
