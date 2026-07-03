@@ -316,17 +316,14 @@ chatRouter.post(
 
       const previousMessages = await Messages.find({ thread_id: thread._id })
         .sort({ createdAt: -1 })
-        .skip(1) 
+        .skip(1)
         .limit(6);
 
       const history = previousMessages.reverse().map((m) => ({
-        role: (m.role === "agent" ? "assistant" : "user") as
-          | "assistant"
-          | "user",
+        role: (m.role === "agent" ? "assistant" : "user") as "assistant" | "user",
         content: m.message_description || "",
       }));
 
-      // Step 5: Call the LLM with retrieved context + history + user query
       const llmResponse = await callLlm({
         retrivedDocs,
         query: message || searchQuery,
