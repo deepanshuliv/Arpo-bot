@@ -227,33 +227,49 @@ chatRouter.get("/limit-status", authMiddleware, async (req: any, res: Response) 
   });
 });
 
+/* ───────────── Ask a question ───────────── */
+
 chatRouter.post(
   "/chats",
-  authMiddleware, 
-  chatLimiter, 
+  authMiddleware,
+  chatLimiter,
   upload.single("image"),
   async (req: Request, res: Response) => {
+    // A conversation created by this request, removed again if no answer comes back
+    let freshThreadId: mongoose.Types.ObjectId | null = null;
+    const discardFreshThread = async () => {
+      if (!freshThreadId) return;
+      await Messages.deleteMany({ thread_id: freshThreadId });
+      await Users.findByIdAndUpdate(req.userId, { $pull: { thread_id: freshThreadId } });
+      await Threads.findByIdAndDelete(freshThreadId);
+    };
+
     try {
       const userId = req.userId;
-      if (!userId) {
-        return res.status(401).json({
-          success: false,
-          message: "Unauthorized",
-        });
+      if (!userId) return fail(res, 401, "UNAUTHORIZED", "Unauthorized");
+
+      const parsed = MessageSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return fail(res, 400, "INVALID_INPUT", "Please provide all fields");
       }
 
-      const { success, data } = MessageSchema.safeParse(req.body);
-      if (!success) {
-        return res.status(401).json({
-          success: false,
-          message: "Please provide all fields",
-        });
-      }
-
-      const { messageType, message, role } = data;
+      const { messageType, message, role, threadId, language } = parsed.data;
       const imagePath = req.file?.path;
+      const isImage = messageType === "image" && Boolean(imagePath);
 
-      const thread = await getOrCreateThread(userId);
+      if (!isImage && !message) {
+        return fail(res, 400, "INVALID_INPUT", "Message is required for text queries");
+      }
+
+      // Continue the given conversation, or start a new one
+      let thread = threadId ? await findUserThread(userId, threadId) : null;
+      if (threadId && !thread) {
+        return fail(res, 404, "NOT_FOUND", "Conversation not found");
+      }
+      if (!thread) {
+        thread = await createThread(userId, titleFrom(message, isImage));
+        freshThreadId = thread._id;
+      }
 
       const saveUserMessage = await Messages.create({
         role,
