@@ -154,17 +154,75 @@ chatRouter.get(
   },
 );
 
-chatRouter.get("/limit-status", authMiddleware, (req: any, res: Response) => {
-  res.status(200).json({
+chatRouter.delete(
+  "/threads/:threadId",
+  authMiddleware,
+  async (req: Request, res: Response) => {
+    try {
+      const thread = await findUserThread(req.userId!, String(req.params.threadId));
+      if (!thread) return fail(res, 404, "NOT_FOUND", "Conversation not found");
+
+      await Messages.deleteMany({ thread_id: thread._id });
+      await Users.findByIdAndUpdate(req.userId, {
+        $pull: { thread_id: thread._id },
+      });
+      await thread.deleteOne();
+
+      return res.status(200).json({ success: true });
+    } catch (error) {
+      console.log("[ERROR]", error);
+      return fail(res, 500, "SERVER_ERROR", "Internal server error");
+    }
+  },
+);
+
+/** Legacy: messages of the most recent conversation. */
+chatRouter.get("/chats", authMiddleware, async (req: Request, res: Response) => {
+  try {
+    const thread = await Threads.findOne({ authors: req.userId }).sort({
+      updatedAt: -1,
+    });
+    if (!thread) {
+      return res.status(200).json({
+        success: true,
+        data: { messages: [], threadId: null },
+      });
+    }
+
+    const messages = await Messages.find({ thread_id: thread._id }).sort({
+      createdAt: 1,
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: { messages: messages.map(toClientMessage), threadId: thread._id },
+    });
+  } catch (error) {
+    console.log("[ERROR]", error);
+    return fail(res, 500, "SERVER_ERROR", "Internal server error");
+  }
+});
+
+chatRouter.get("/limit-status", authMiddleware, async (req: any, res: Response) => {
+  const role = await currentRole(req.userId);
+  if (isStaff(role)) {
+    return res.status(200).json({
+      success: true,
+      data: { role, limit: "Unlimited", remaining: "Unlimited" },
+    });
+  }
+
+  // Read this user's live count from the limiter's store
+  const info = await chatLimiter.getKey(req.userId);
+  const used = info?.totalHits ?? 0;
+
+  return res.status(200).json({
     success: true,
     data: {
-      role: req.userRole,
-
-      limit: req.userRole === "admin" ? "Unlimited" : 5,
-      remaining:
-        req.userRole === "admin"
-          ? "Unlimited"
-          : req.headers["x-ratelimit-remaining"] || "Check headers",
+      role,
+      limit: USER_HOURLY_LIMIT,
+      remaining: Math.max(0, USER_HOURLY_LIMIT - used),
+      resetTime: info?.resetTime ?? null,
     },
   });
 });
