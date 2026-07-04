@@ -345,6 +345,7 @@ chatRouter.post(
         role: "agent",
         message_description: llmResponse,
         thread_id: thread._id,
+        sources,
       });
 
       await Threads.findByIdAndUpdate(thread._id, {
