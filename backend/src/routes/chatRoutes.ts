@@ -357,22 +357,25 @@ chatRouter.post(
       return res.status(200).json({
         success: true,
         data: {
+          thread: toThreadSummary(await Threads.findById(thread._id)),
           userMessage: saveUserMessage,
           agentMessage: saveAgentMessage,
           response: llmResponse,
-          sources: retrivedDocs,
+          sources,
         },
       });
-    } catch (error) {
-
-      if (req.file?.path) {
-        deleteFile(req.file.path);
-      }
+    } catch (error: any) {
+      if (req.file?.path) deleteFile(req.file.path);
       console.log("[ERROR]", error);
-      res.status(500).json({
-        success: false,
-        message: "internal server error",
-      });
+      await discardFreshThread().catch(() => {});
+      if (error instanceof AiBusyError) {
+        return fail(res, 503, "AI_BUSY", "The AI service is busy. Please try again in a minute.");
+      }
+      // A missing or rejected Gemini key surfaces here (embedding the question)
+      if (/API_KEY_INVALID|API key not valid|GOOGLE_API_KEY/i.test(String(error?.message))) {
+        return fail(res, 503, "AI_UNAVAILABLE", "The AI service is not configured. Check GOOGLE_API_KEY.");
+      }
+      return fail(res, 500, "SERVER_ERROR", "Internal server error");
     }
   },
 );
