@@ -78,56 +78,43 @@ userRouter.post("/signin", async (req: Request, res: Response) => {
 
 userRouter.post("/signup", async (req: Request, res: Response) => {
   try {
-    console.log("[INFO] in signup route");
-
-    const { success, data } = SignupSchema.safeParse(req.body);
-    if (!success) {
-      return res.status(401).json({
-        success: false,
-        message: "Please provide all fields",
-      });
+    const parsed = SignupSchema.safeParse(req.body);
+    if (!parsed.success) {
+      const code = fieldErrorCode(parsed.error);
+      const messages: Record<string, string> = {
+        NAME_REQUIRED: "Enter your name",
+        INVALID_EMAIL: "Enter a valid email address",
+        PASSWORD_TOO_SHORT: "Password must be at least 6 characters",
+        INVALID_INPUT: "Please fill in all fields",
+      };
+      return authError(res, 400, code, messages[code]!);
     }
 
-    const { email, password, name } = data;
+    const { email, password, name } = parsed.data;
 
-    const user = await Users.findOne({ email });
-
-    if (user) {
-      return res.status(401).json({
-        success: false,
-        message: "User already exists. Go to Sign In",
-      });
+    if (await Users.exists({ email })) {
+      return authError(res, 409, "EMAIL_TAKEN", "An account with this email already exists");
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
     const dbUser = await Users.create({
       name,
       email,
-      password: hashedPassword,
+      password: await bcrypt.hash(password, 10),
       role: "user",
     });
 
-    const token = jwt.sign(
-      { userId: dbUser._id, role: "user" },
-      process.env.JWT_SECRET!,
-    );
-
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "User created successfully",
-      data: {
-        token,
-        role: "user",
-        name: dbUser.name,
-      },
+      data: { token: signToken(dbUser), role: "user", name: dbUser.name },
     });
-  } catch (error) {
+  } catch (error: any) {
+    // Two sign-ups racing for the same email hit the unique index
+    if (error?.code === 11000) {
+      return authError(res, 409, "EMAIL_TAKEN", "An account with this email already exists");
+    }
     console.log("[ERROR]", error);
-    res.status(500).json({
-      success: false,
-      message: "internal server error",
-      error,
-    });
+    return authError(res, 500, "SERVER_ERROR", "Internal server error");
   }
 });
 
