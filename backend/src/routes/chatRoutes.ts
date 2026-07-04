@@ -352,9 +352,7 @@ chatRouter.post(
         $push: { messages: saveAgentMessage._id },
       });
 
-      if (imagePath) {
-        deleteFile(imagePath);
-      }
+      if (imagePath) deleteFile(imagePath);
 
       return res.status(200).json({
         success: true,
