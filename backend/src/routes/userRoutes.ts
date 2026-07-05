@@ -119,62 +119,186 @@ userRouter.post("/signup", async (req: Request, res: Response) => {
 });
 
 userRouter.post("/admin/signin", async (req: Request, res: Response) => {
-  console.log("[INFO] in admin signin route");
   try {
-    const { success, data } = SigninSchema.safeParse(req.body);
-    if (!success) {
-      return res.status(401).json({
-        success: false,
-        message: "Please provide all fields",
-      });
+    const user = await verifyCredentials(req, res);
+    if (!user) return;
+
+    if (!isStaff(user.role ?? undefined)) {
+      return authError(res, 403, "FORBIDDEN", "This account does not have admin access");
     }
 
-    const { email, password } = data;
-    const user = await Users.findOne({ email });
-
-    if (!user || user.password === "") {
-      return res.status(401).json({
-        success: false,
-        message: "Account not found",
-      });
-    }
-
-    if (user.role !== "admin") {
-      return res.status(403).json({
-        success: false,
-        message: "Access denied. This account does not have admin privileges.",
-      });
-    }
-
-    const isPasswordCorrect = await bcrypt.compare(password, user.password!);
-    if (!isPasswordCorrect) {
-      return res.status(401).json({
-        success: false,
-        message: "Password is incorrect",
-      });
-    }
-
-    const token = jwt.sign(
-      { userId: user._id, role: "admin" },
-      process.env.JWT_SECRET!,
-    );
-
-    res.status(201).json({
+    return res.status(200).json({
       success: true,
-      message: "Admin logged in successfully",
-      data: {
-        token,
-        role: "admin",
-        name: user.name,
-      },
+      message: "Admin signed in",
+      data: { token: signToken(user), role: user.role, name: user.name },
     });
   } catch (error) {
     console.log("[ERROR]", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    return authError(res, 500, "SERVER_ERROR", "Internal server error");
   }
 });
+
+/*
+  Password reset WITHOUT email verification — local development only.
+  Anyone who knows an address could reset that account, so it is off unless
+  ALLOW_INSECURE_PASSWORD_RESET=true. Replace with an emailed link before launch.
+*/
+const resetEnabled = () => process.env.ALLOW_INSECURE_PASSWORD_RESET === "true";
+
+const resetLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  keyGenerator: (req: any) => ipKeyGenerator(req.ip),
+  handler: (req, res) =>
+    authError(res, 429, "TOO_MANY_ATTEMPTS", "Too many reset attempts. Try again in 15 minutes."),
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+userRouter.get("/password/reset", (req: Request, res: Response) => {
+  res.status(200).json({ success: true, data: { enabled: resetEnabled() } });
+});
+
+userRouter.post("/password/reset", resetLimiter, async (req: Request, res: Response) => {
+  try {
+    if (!resetEnabled()) {
+      return authError(res, 403, "RESET_DISABLED", "Password reset is not available");
+    }
+
+    const parsed = ResetPasswordSchema.safeParse(req.body);
+    if (!parsed.success) {
+      const code = fieldErrorCode(parsed.error);
+      return authError(
+        res,
+        400,
+        code === "INVALID_EMAIL" || code === "PASSWORD_TOO_SHORT" ? code : "INVALID_INPUT",
+        "Enter your email and a new password of at least 6 characters",
+      );
+    }
+
+    const { email, password, confirmPassword } = parsed.data;
+    if (password !== confirmPassword) {
+      return authError(res, 400, "PASSWORDS_DONT_MATCH", "The passwords do not match");
+    }
+
+    const user = await Users.findOne({ email });
+    if (!user) {
+      return authError(res, 404, "ACCOUNT_NOT_FOUND", "No account found with this email");
+    }
+
+    user.password = await bcrypt.hash(password, 10);
+    await user.save();
+    console.log(`[INFO] Password reset for ${email}`);
+
+    return res.status(200).json({ success: true, message: "Password updated" });
+  } catch (error) {
+    console.log("[ERROR]", error);
+    return authError(res, 500, "SERVER_ERROR", "Internal server error");
+  }
+});
+
+/* ───────────── Team (main admin only) ───────────── */
+
+function toTeamMember(u: any) {
+  return {
+    _id: u._id,
+    name: u.name,
+    email: u.email,
+    role: u.role,
+    createdAt: u.createdAt ?? null,
+  };
+}
+
+userRouter.get(
+  "/admin/team",
+  authMiddleware,
+  superAdminMiddleware,
+  async (req: Request, res: Response) => {
+    try {
+      const members = await Users.find({ role: { $in: ["admin", "subadmin"] } })
+        .select("name email role createdAt")
+        .sort({ role: 1, createdAt: 1 });
+      return res.status(200).json({
+        success: true,
+        data: { members: members.map(toTeamMember) },
+      });
+    } catch (error) {
+      console.log("[ERROR]", error);
+      return res.status(500).json({ success: false, code: "SERVER_ERROR", message: "Internal server error" });
+    }
+  },
+);
+
+userRouter.post(
+  "/admin/subadmins",
+  authMiddleware,
+  superAdminMiddleware,
+  async (req: Request, res: Response) => {
+    try {
+      const parsed = SignupSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({
+          success: false,
+          code: "INVALID_INPUT",
+          message: "Name, a valid email and a password of at least 6 characters are required",
+        });
+      }
+
+      const { name, email, password } = parsed.data;
+      const existing = await Users.findOne({ email });
+
+      if (existing && isStaff(existing.role ?? undefined)) {
+        return res.status(409).json({
+          success: false,
+          code: "ALREADY_STAFF",
+          message: "This person already has admin access",
+        });
+      }
+      if (existing) {
+        return res.status(409).json({
+          success: false,
+          code: "EMAIL_TAKEN",
+          message: "An account with this email already exists",
+        });
+      }
+
+      const member = await Users.create({
+        name,
+        email,
+        password: await bcrypt.hash(password, 10),
+        role: "subadmin",
+        addedBy: req.userId,
+      });
+
+      return res.status(201).json({ success: true, data: { member: toTeamMember(member) } });
+    } catch (error) {
+      console.log("[ERROR]", error);
+      return res.status(500).json({ success: false, code: "SERVER_ERROR", message: "Internal server error" });
+    }
+  },
+);
+
+/** Removes sub-admin access; the account stays as a normal user (chats are kept). */
+userRouter.delete(
+  "/admin/subadmins/:id",
+  authMiddleware,
+  superAdminMiddleware,
+  async (req: Request, res: Response) => {
+    try {
+      const id = String(req.params.id);
+      const member = mongoose.isValidObjectId(id) ? await Users.findById(id) : null;
+      if (!member || member.role !== "subadmin") {
+        return res.status(404).json({ success: false, code: "NOT_FOUND", message: "Sub-admin not found" });
+      }
+
+      member.role = "user";
+      await member.save();
+      return res.status(200).json({ success: true });
+    } catch (error) {
+      console.log("[ERROR]", error);
+      return res.status(500).json({ success: false, code: "SERVER_ERROR", message: "Internal server error" });
+    }
+  },
+);
 
 export default userRouter;
