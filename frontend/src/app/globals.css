@@ -91,15 +91,17 @@
   padding: 0;
 }
 
-html,
+html {
+  background: var(--bg-primary);
+  scroll-behavior: smooth;
+  zoom: var(--ui-zoom);
+}
+
 body {
-  background-color: var(--bg-primary);
+  min-width: 320px;
+  background: var(--bg-primary);
   color: var(--text-primary);
-  font-family:
-    var(--font-geist-sans),
-    system-ui,
-    -apple-system,
-    sans-serif;
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
