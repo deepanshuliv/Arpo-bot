@@ -1,137 +1,88 @@
 @import "tailwindcss";
 
-@theme {
-  /* ── Colors ── */
-  --color-bg-primary: #0a0a0a;
-  --color-bg-secondary: #111111;
-  --color-bg-tertiary: #1a1a1a;
-  --color-bg-hover: #222222;
-  --color-border: #2a2a2a;
-  --color-border-light: #333333;
-  --color-text-primary: #e8e8e8;
-  --color-text-secondary: #888888;
-  --color-text-muted: #555555;
-  --color-accent: #00d4ff;
-  --color-accent-dim: #00d4ff22;
-  --color-accent-glow: #00d4ff44;
-  --color-danger: #ff4444;
-  --color-success: #00cc88;
-  --color-glass: rgba(255, 255, 255, 0.03);
-  --color-glass-border: rgba(255, 255, 255, 0.06);
-  --color-cyan-500: #06b6d4;
-  --color-blue-500: #3b82f6;
-  --color-orange-400: #fb923c;
-  --color-green-500: #22c55e;
+/*
+  ARPO design tokens
+  Palette: Sandstone — rose sandstone, walnut ink, terracotta.
+  Type: Mukta (Latin + Devanagari), government-portal register.
+  Radius rule: controls 8px, surfaces 12px, nothing is a pill.
+*/
 
-  /* ── Animations ── */
-  --animate-fade-in: fadeIn 0.4s ease-out forwards;
-  --animate-slide-up: slideUp 0.5s ease-out forwards;
-  --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
-  --animate-pulse-dot: pulse-dot 2s ease-in-out infinite;
-  --animate-typing: typing 1.4s ease-in-out infinite;
-  --animate-spin: spin 0.6s linear infinite;
+:root {
+  --bg-primary: #f0e5d8;
+  --bg-secondary: #f8f0e6;
+  --bg-tertiary: #e6d6c5;
+  --bg-hover: #ddcab6;
+  --bg-sidebar: #eadccd;
+  --border: #dac8b4;
+  --border-light: #c3ac95;
+  --text-primary: #2b1d16;
+  --text-secondary: #5a4335;
+  --text-muted: #7f6757;
+  --accent: #b5502b;
+  --accent-hover: #9a4323;
+  --accent-ink: #fff5ef;
+  --ambient: #d09a4a;
+  --danger: #a8281c;
+  --success: #4f7a32;
+  --shadow-color: rgba(75, 38, 16, 0.24);
 
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(8px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
+  /* Base camp: the dark walnut app shell and its light-on-dark accent */
+  --walnut: #2b1d16;
+  --walnut-raised: #36261d;
+  --on-walnut: #f3e7da;
+  --on-walnut-muted: rgba(243, 231, 218, 0.6);
+  --on-walnut-line: rgba(243, 231, 218, 0.12);
+  --ember: #f0a57a;
+  --paper: #fffaf4;
+  --grain-opacity: 0.06;
 
-  @keyframes slideUp {
-    from {
-      opacity: 0;
-      transform: translateY(24px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
+  --radius-control: 8px;
+  --radius-surface: 12px;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 
-  @keyframes pulse-glow {
-    0%,
-    100% {
-      box-shadow: 0 0 0 0 var(--color-accent-glow);
-    }
-    50% {
-      box-shadow: 0 0 20px 4px var(--color-accent-glow);
-    }
-  }
+  /* UI scale: the larger size chosen during review */
+  --ui-zoom: 1.12;
+  --site-header-h: 76px;
+  --container: min(1200px, calc(100% - 48px));
+  --page-h: calc(100dvh / var(--ui-zoom));
 
-  @keyframes pulse-dot {
-    0%,
-    100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.4;
-    }
-  }
+  --z-base: 1;
+  --z-overlay: 20;
+  --z-grain: 30;
+  --z-skip: 40;
 
-  @keyframes typing {
-    0%,
-    60%,
-    100% {
-      opacity: 0.3;
-      transform: scale(0.8);
-    }
-    30% {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  @keyframes shimmer {
-    0% {
-      background-position: -200% 0;
-    }
-    100% {
-      background-position: 200% 0;
-    }
-  }
-
-  @keyframes pulse-border {
-    0%,
-    100% {
-      border-color: var(--color-accent);
-      box-shadow: 0 0 0 0 rgba(0, 212, 255, 0);
-    }
-    50% {
-      border-color: var(--color-accent);
-      box-shadow: 0 0 24px 4px rgba(0, 212, 255, 0.2);
-    }
-  }
+  color-scheme: light;
 }
 
-/* ── Root variables ── */
+/* ───── Typeface: Mukta, Latin + Devanagari ───── */
 :root {
-  --bg-primary: #0a0a0a;
-  --bg-secondary: #111111;
-  --bg-tertiary: #1a1a1a;
-  --bg-hover: #222222;
-  --border: #2a2a2a;
-  --border-light: #333333;
-  --text-primary: #e8e8e8;
-  --text-secondary: #888888;
-  --text-muted: #555555;
-  --accent: #00d4ff;
-  --accent-dim: #00d4ff22;
-  --accent-glow: #00d4ff44;
-  --danger: #ff4444;
-  --success: #00cc88;
-  --glass: rgba(255, 255, 255, 0.03);
-  --glass-border: rgba(255, 255, 255, 0.06);
+  --font-body: var(--f-mukta), system-ui, sans-serif;
+  --font-display: var(--font-body);
+  --weight-heading: 600;
+  --weight-display: 700;
+  --tracking-display: -0.01em;
+  --tracking-heading: 0;
+
+  /* One type scale for the whole platform */
+  --text-display: clamp(2.6rem, 5.4vw, 4.4rem);
+  --text-h1: clamp(2rem, 3.4vw, 2.75rem);
+  --text-h2: clamp(1.6rem, 2.6vw, 2.2rem);
+  --text-h3: 20px;
+  --text-lead: 17px;
+  --text-body: 15px;
+  --text-small: 13px;
+}
+
+/* Derived tokens */
+:root {
+  --accent-dim: color-mix(in srgb, var(--accent) 11%, transparent);
+  --accent-line: color-mix(in srgb, var(--accent) 34%, transparent);
+  --focus-ring: color-mix(in srgb, var(--accent) 28%, transparent);
+  --danger-dim: color-mix(in srgb, var(--danger) 10%, transparent);
+  --line-faint: color-mix(in srgb, var(--text-primary) 6%, transparent);
+  --line-soft: color-mix(in srgb, var(--text-primary) 10%, transparent);
+  --overlay-bg: color-mix(in srgb, var(--bg-primary) 84%, transparent);
+  --shadow-deep: 0 30px 80px -24px var(--shadow-color);
 }
 
 * {
