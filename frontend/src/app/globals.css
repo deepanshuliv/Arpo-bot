@@ -107,20 +107,66 @@ body {
   overflow-x: hidden;
 }
 
+/* Fine film grain so the dark surfaces don't read as flat vector fills */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-grain);
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+}
+
+code,
+kbd {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+button,
+a,
+input,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
 ::selection {
-  background: var(--accent-dim);
-  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 26%, transparent);
+  color: var(--text-primary);
 }
+
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--border);
-  border-radius: 3px;
+  border: 2px solid var(--bg-primary);
+  border-radius: 8px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: var(--border-light);
 }
