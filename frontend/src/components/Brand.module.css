@@ -1,0 +1,24 @@
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-primary);
+}
+
+.brand svg {
+  flex-shrink: 0;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  padding-left: 12px;
+  border-left: 1px solid var(--border-light);
+  line-height: 1.2;
+}
+
+.name,
+.sub {
+  white-space: nowrap;
+}
+
