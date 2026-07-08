@@ -48,3 +48,35 @@
   font-size: 16px;
 }
 
+.compact .sub {
+  font-size: 11px;
+}
+
+.light {
+  color: var(--on-walnut);
+}
+
+.light .text {
+  border-left-color: var(--on-walnut-line);
+}
+
+.light .sub {
+  color: var(--on-walnut-muted);
+}
+
+/* Small screens: seal + name + Hindi line only */
+@media (max-width: 760px) {
+  .brand:not(.compact) svg {
+    width: 34px;
+    height: 34px;
+  }
+
+  .subEn {
+    display: none;
+  }
+
+  .brand:not(.compact) .name {
+    font-size: 17px;
+  }
+}
+
