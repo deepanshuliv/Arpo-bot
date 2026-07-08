@@ -1,0 +1,324 @@
+{
+  "common": {
+    "homeLabel": "ARPO home",
+    "skipToContent": "Skip to main content"
+  },
+  "language": {
+    "label": "Language",
+    "en": "EN",
+    "hi": "हि",
+    "switchToHindi": "Switch to Hindi",
+    "switchToEnglish": "Switch to English"
+  },
+  "header": {
+    "forLeaders": "For leaders",
+    "signIn": "Sign in",
+    "home": "Home",
+    "leaderSignIn": "Leader sign in",
+    "scoutSignIn": "Scout sign in",
+    "chat": "Chat",
+    "knowledgeBase": "Knowledge base",
+    "signOut": "Sign out",
+    "menu": "Open menu",
+    "closeMenu": "Close menu",
+    "team": "Team",
+    "collapseSidebar": "Hide sidebar",
+    "expandSidebar": "Show sidebar"
+  },
+  "landing": {
+    "eyebrow": "For Bharat Scouts & Guides",
+    "heroTitle": "A field guide that <em>answers back.</em>",
+    "heroDesc": "Ask about badges, camp safety, rules and field craft. ARPO answers from the manuals your troop already trusts, and shows you the page it came from.",
+    "ctaPrimary": "Ask your first question",
+    "ctaSecondary": "Add your troop’s manuals",
+    "specimen": {
+      "label": "Example",
+      "time": "Sat, 06:40",
+      "question": "What should every patrol pack for a monsoon camp?",
+      "answerIntro": "Start from the standard patrol kit list, then plan for the ground staying wet:",
+      "steps": {
+        "one": "A groundsheet under every tent, not only inside it",
+        "two": "Spare guy lines, kept dry in a sealed bag",
+        "three": "One full change of clothes per scout, bagged separately",
+        "four": "Dry kindling carried in, since fallen wood won’t light"
+      },
+      "source": "Camp craft manual",
+      "sourceMeta": "p. 42 · 87% match"
+    },
+    "features": {
+      "eyebrow": "What it’s for",
+      "title": "The reference shelf, carried to the campsite.",
+      "desc": "Leaders upload the documents once. Everyone in the troop can ask questions of them from then on.",
+      "items": {
+        "manuals": {
+          "title": "Grounded in your manuals",
+          "description": "Every answer is drawn from the BSG handbooks and rulebooks your team uploads, not from the open internet."
+        },
+        "badges": {
+          "title": "Badge paths, spelled out",
+          "description": "From Pravesh to Rajya Puraskar, get the requirements for a badge as a clear sequence of steps."
+        },
+        "fieldcraft": {
+          "title": "Field craft on the spot",
+          "description": "Knots, pitching in the rain, first aid on a hike. Ask from the campsite and get a straight answer."
+        },
+        "sources": {
+          "title": "Sources you can check",
+          "description": "Each reply lists the document and page it came from, so a leader can verify it before a scout acts on it."
+        }
+      }
+    },
+    "closing": {
+      "title": "Be prepared, <em>with the page number.</em>",
+      "cta": "Open the assistant"
+    },
+    "footer": {
+      "service": "© 2026 ARPO · An independent prototype built for Bharat Scouts & Guides",
+      "disclaimer": "Answers are drawn from manuals uploaded by troop leaders. Check safety-critical advice with your leader.",
+      "lastUpdated": "Last updated: {date}",
+      "signIn": "Sign in",
+      "adminSignIn": "Admin sign in"
+    }
+  },
+  "trail": {
+    "title": "Every camp starts with a good question.",
+    "one": "Ask a question",
+    "two": "See the page it came from",
+    "three": "Head out prepared",
+    "youAreHere": "You are here",
+    "quote": "“Try and leave this world a little better than you found it.”",
+    "quoteBy": "Robert Baden-Powell"
+  },
+  "auth": {
+    "welcomeTitle": "Welcome back",
+    "welcomeSub": "Sign in to pick up where you left off.",
+    "joinTitle": "Join your troop on ARPO",
+    "joinSub": "Create an account to start asking questions of your troop’s manuals.",
+    "tabSignIn": "Sign in",
+    "tabCreate": "Create account",
+    "fullName": "Full name",
+    "namePlaceholder": "Ananya Iyer",
+    "email": "Email",
+    "emailPlaceholder": "you@example.com",
+    "password": "Password",
+    "passwordHint": "At least 6 characters",
+    "submitSignIn": "Sign in",
+    "submitCreate": "Create account",
+    "signingIn": "Signing in",
+    "creating": "Creating account",
+    "failed": "We couldn’t sign you in. Check your details and try again.",
+    "network": "We couldn’t reach the server. Check your connection and try again.",
+    "errors": {
+      "NAME_REQUIRED": "Enter your name.",
+      "EMAIL_REQUIRED": "Enter your email address.",
+      "INVALID_EMAIL": "Enter a valid email address, like name@example.com.",
+      "PASSWORD_REQUIRED": "Enter your password.",
+      "PASSWORD_TOO_SHORT": "Password must be at least 6 characters.",
+      "EMAIL_TAKEN": "An account with this email already exists.",
+      "ACCOUNT_NOT_FOUND": "No account found with this email.",
+      "WRONG_PASSWORD": "That password is incorrect. Please try again.",
+      "FORBIDDEN": "This account doesn’t have admin access.",
+      "NETWORK": "We couldn’t reach the server. Check your connection and try again.",
+      "SERVER_ERROR": "Something went wrong on our side. Please try again.",
+      "CONFIRM_REQUIRED": "Type the new password again.",
+      "PASSWORDS_DONT_MATCH": "The passwords don’t match.",
+      "RESET_DISABLED": "Password reset isn’t available right now.",
+      "TOO_MANY_ATTEMPTS": "Too many attempts. Please wait 15 minutes and try again."
+    },
+    "actions": {
+      "signInInstead": "Sign in instead",
+      "createInstead": "Create an account",
+      "useScoutSignIn": "Use scout sign in"
+    },
+    "forgot": "Forgot password?",
+    "reset": {
+      "title": "Reset your password",
+      "sub": "Enter your account email and choose a new password.",
+      "email": "Account email",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm new password",
+      "confirmPlaceholder": "Type the new password again",
+      "submit": "Reset password",
+      "resetting": "Resetting",
+      "doneTitle": "Password updated",
+      "doneSub": "You can now sign in with your new password.",
+      "backToSignIn": "Back to sign in",
+      "signInNow": "Sign in now",
+      "disabledTitle": "Password reset isn’t available",
+      "disabledSub": "Ask your troop leader or an admin to help you get back into your account."
+    }
+  },
+  "adminAuth": {
+    "title": "Leader sign in",
+    "sub": "Manage the manuals and handbooks ARPO answers from.",
+    "notice": "Admin accounts are issued by your organisation. There is no public sign-up.",
+    "email": "Admin email",
+    "emailPlaceholder": "leader@yourtroop.org",
+    "noAccess": "This account doesn’t have admin access. Use the scout sign in instead."
+  },
+  "chat": {
+    "newQuestion": "New question",
+    "history": "Your questions",
+    "groups": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "week": "Previous 7 days",
+      "earlier": "Earlier"
+    },
+    "noHistory": "Questions you ask will be saved here.",
+    "deleteConversation": "Delete conversation",
+    "confirmDelete": "Delete",
+    "keep": "Keep",
+    "usage": {
+      "title": "Questions left this hour",
+      "remaining": "{remaining} of {limit}",
+      "refillsAt": "Refills at {time}",
+      "full": "Full allowance",
+      "unlimited": "Admin access · no question limit"
+    },
+    "newConversationTitle": "New question",
+    "empty": {
+      "greeting": "Hello, {name}",
+      "greetingAnon": "Hello",
+      "title": "What are we preparing for?",
+      "desc": "Ask about badges, rules, camping or first aid. You can also drop in a photo of a knot, a badge or a page from a handbook.",
+      "suggestions": {
+        "badge": "What are the requirements for the Rajya Puraskar award?",
+        "knot": "How do I tie a clove hitch, and when should I use it?",
+        "firstAid": "What first aid should a patrol carry on a day hike?"
+      }
+    },
+    "message": {
+      "you": "You",
+      "arpo": "ARPO",
+      "fromPassages": "{count, plural, one {from # passage} other {from # passages}}",
+      "page": "p. {page}",
+      "match": "{score}% match",
+      "passages": "Passages used",
+      "imageAlt": "Image you attached"
+    },
+    "followUps": {
+      "checklist": "Make it a checklist",
+      "simpler": "Explain it more simply",
+      "more": "What else should I know?"
+    },
+    "composer": {
+      "placeholder": "Ask about badges, camp, first aid…",
+      "followUp": "Ask a follow-up…",
+      "label": "Your question",
+      "attach": "Attach an image",
+      "removeImage": "Remove attached image",
+      "send": "Send",
+      "hint": "Enter to send · Shift + Enter for a new line · Check safety advice with your leader"
+    },
+    "drop": {
+      "title": "Drop the image to attach it",
+      "sub": "PNG, JPG, GIF or WebP"
+    },
+    "loading": "Looking this up in the manuals",
+    "loadingHistory": "Loading your conversation",
+    "errors": {
+      "RATE_LIMITED": "You’ve used this hour’s questions. Your allowance refills in {minutes, plural, one {# minute} other {# minutes}}.",
+      "AI_UNAVAILABLE": "The answering service isn’t set up right now. Please tell your leader.",
+      "IMAGE_FAILED": "We couldn’t read that image. Try a clearer photo.",
+      "NO_ANSWER": "ARPO couldn’t put an answer together. Please try again.",
+      "NOT_FOUND": "That conversation no longer exists.",
+      "INVALID_INPUT": "Please type a question or attach an image.",
+      "UNAUTHORIZED": "Your session has ended. Please sign in again.",
+      "SERVER_ERROR": "Something went wrong on our side. Please try again.",
+      "NETWORK": "We couldn’t reach the server. Check your connection and try again.",
+      "FORBIDDEN": "You don’t have permission to do that.",
+      "EMAIL_TAKEN": "Something went wrong on our side. Please try again.",
+      "ALREADY_STAFF": "Something went wrong on our side. Please try again.",
+      "AI_BUSY": "ARPO is very busy right now. Please try again in a minute."
+    }
+  },
+  "admin": {
+    "title": "Knowledge base",
+    "subtitle": "Add manuals, handbooks and rulebooks as PDFs. ARPO splits them into passages and answers from them, citing the page each answer came from.",
+    "dropTitle": "Drop PDFs here, or <u>browse your files</u>",
+    "dropSub": "Up to 10 MB per file",
+    "dropOverlay": "Drop to add these PDFs",
+    "dropOverlaySub": "You can drop several at once",
+    "ready": "{count, plural, one {# file ready} other {# files ready}}",
+    "addMore": "Add more",
+    "remove": "Remove {name}",
+    "clearAll": "Clear all",
+    "upload": "Add to knowledge base",
+    "indexing": "Indexing {count, plural, one {# file} other {# files}}",
+    "library": "In the knowledge base",
+    "librarySummary": "{docs, plural, one {# document} other {# documents}} · {passages, plural, one {# passage} other {# passages}}",
+    "libraryEmpty": "No documents yet. PDFs you add will appear here.",
+    "libraryLoading": "Loading documents",
+    "passages": "{count, plural, one {# passage} other {# passages}}",
+    "pages": "{count, plural, one {# page} other {# pages}}",
+    "added": "Added {date}",
+    "justAdded": "Just added",
+    "delete": "Remove",
+    "confirmDelete": "Remove from ARPO?",
+    "confirmYes": "Remove",
+    "confirmNo": "Keep",
+    "deleting": "Removing",
+    "errors": {
+      "notPdf": "Only PDF files can be added.",
+      "tooLarge": "Some files were skipped. Each PDF must be 10 MB or smaller.",
+      "uploadFailed": "The upload didn’t finish. Please try again.",
+      "listFailed": "We couldn’t load the document list.",
+      "deleteFailed": "We couldn’t remove that document. Please try again.",
+      "network": "We couldn’t reach the server. Check your connection and try again."
+    },
+    "failedFile": "Failed"
+  },
+  "notFound": {
+    "eyebrow": "Page not found · 404",
+    "title": "This trail <em>doesn’t go anywhere.</em>",
+    "desc": "The page you were looking for has moved or never existed.",
+    "cta": "Back to home"
+  },
+  "password": {
+    "show": "Show password",
+    "hide": "Hide password",
+    "placeholder": "Enter your password",
+    "newPlaceholder": "Create a password (6+ characters)"
+  },
+  "team": {
+    "title": "Team",
+    "subtitle": "Give other leaders sub-admin access. Only you, as the main admin, can add or remove them.",
+    "members": "People with admin access",
+    "count": "{count, plural, one {# person} other {# people}}",
+    "you": "You",
+    "roleAdmin": "Main admin",
+    "roleSub": "Sub-admin",
+    "added": "Added {date}",
+    "addTitle": "Add a sub-admin",
+    "addDesc": "They sign in on the leader sign-in page.",
+    "can": "Can upload and remove manuals, and ask unlimited questions",
+    "cannot": "Cannot add or remove admins",
+    "name": "Full name",
+    "namePlaceholder": "Rohan Mehta",
+    "email": "Email",
+    "emailPlaceholder": "leader@yourtroop.org",
+    "password": "Temporary password",
+    "passwordPlaceholder": "At least 6 characters",
+    "passwordHint": "Share it with them privately.",
+    "submit": "Add sub-admin",
+    "adding": "Adding",
+    "success": "{name} can now sign in as a sub-admin.",
+    "remove": "Remove access",
+    "confirmRemove": "Remove {name}’s admin access?",
+    "confirmYes": "Remove",
+    "confirmNo": "Keep",
+    "removing": "Removing",
+    "onlyMainAdmin": "Only the main admin can manage the team.",
+    "loading": "Loading the team",
+    "errors": {
+      "EMAIL_TAKEN": "An account with this email already exists. Use a different email.",
+      "ALREADY_STAFF": "This person already has admin access.",
+      "INVALID_INPUT": "Enter a name, a valid email and a password of at least 6 characters.",
+      "FORBIDDEN": "Only the main admin can do this.",
+      "NOT_FOUND": "That person no longer has admin access.",
+      "NETWORK": "We couldn’t reach the server. Check your connection and try again.",
+      "SERVER_ERROR": "Something went wrong on our side. Please try again."
+    }
+  }
+}
