@@ -80,3 +80,15 @@
   }
 }
 
+@media (max-width: 520px) {
+  .brand:not(.compact) .sub {
+    display: none;
+  }
+}
+
+/* Phones: the seal alone, so the toggle and button always fit */
+@media (max-width: 440px) {
+  .brand:not(.compact) .text {
+    display: none;
+  }
+}
