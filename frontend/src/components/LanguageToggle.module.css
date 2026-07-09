@@ -24,3 +24,27 @@
   --arm: rgba(243, 231, 218, 0.55);
 }
 
+.toggle[data-pending] {
+  cursor: progress;
+  opacity: 0.7;
+}
+
+.label {
+  min-width: 18px;
+  color: var(--off);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  text-align: center;
+  transition: color 250ms ease;
+}
+
+.label[data-active="true"] {
+  color: var(--on);
+}
+
+.toggle:hover .label:not([data-active="true"]) {
+  color: color-mix(in srgb, var(--off) 60%, var(--on));
+}
+
