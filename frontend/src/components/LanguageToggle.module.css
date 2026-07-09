@@ -1,0 +1,26 @@
+.toggle {
+  --off: var(--text-muted);
+  --on: var(--accent);
+  --track-bg: var(--bg-tertiary);
+  --track-edge: color-mix(in srgb, var(--text-primary) 14%, transparent);
+  --arm: color-mix(in srgb, var(--text-primary) 45%, transparent);
+
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 12px;
+  padding: 4px;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.light {
+  --off: rgba(243, 231, 218, 0.55);
+  --on: #f0a57a;
+  --track-bg: rgba(0, 0, 0, 0.28);
+  --track-edge: rgba(243, 231, 218, 0.16);
+  --arm: rgba(243, 231, 218, 0.55);
+}
+
