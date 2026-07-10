@@ -136,3 +136,17 @@
   transition: transform 200ms ease;
 }
 
+.toggle:active .knob {
+  transform: scale(0.9);
+}
+
+.toggle:focus-visible {
+  border-radius: 8px;
+}
+
+@media (max-width: 400px) {
+  .toggle {
+    gap: 8px;
+    padding: 4px 2px;
+  }
+}
