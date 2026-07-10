@@ -1,0 +1,26 @@
+.header {
+  position: relative;
+  z-index: var(--z-base);
+  flex-shrink: 0;
+  height: var(--site-header-h);
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-secondary) 55%, transparent);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: var(--container);
+  height: 100%;
+  margin: 0 auto;
+}
+
+.home {
+  flex-shrink: 1;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
