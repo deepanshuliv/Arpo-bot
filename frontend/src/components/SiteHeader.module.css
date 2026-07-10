@@ -24,3 +24,23 @@
   text-decoration: none;
 }
 
+.nav {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 24px;
+}
+
+/* Text nav link; the current page gets an accent underline */
+.link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: var(--site-header-h);
+  color: var(--text-secondary);
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 200ms ease;
+}
+
