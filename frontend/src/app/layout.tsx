@@ -24,12 +24,18 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+  const t = await getTranslations("common");
+
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+    <html lang={locale} className={mukta.variable}>
+      <body>
+        <NextIntlClientProvider>
+          <a href="#main" className="skip-link">
+            {t("skipToContent")}
+          </a>
+          {children}
+        </NextIntlClientProvider>
       </body>
     </html>
   );
