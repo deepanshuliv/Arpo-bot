@@ -84,3 +84,12 @@
   }
 }
 
+@media (max-width: 400px) {
+  .inner {
+    width: calc(100% - 24px);
+  }
+
+  .nav {
+    gap: 8px;
+  }
+}
