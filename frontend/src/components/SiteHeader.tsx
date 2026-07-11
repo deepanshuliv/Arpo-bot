@@ -11,3 +11,24 @@ type SiteHeaderProps = {
   action?: React.ReactNode;
 };
 
+/** The one header used by every page outside the chat app shell. */
+export default function SiteHeader({ children, action }: SiteHeaderProps) {
+  const t = useTranslations("common");
+
+  return (
+    <header className={s.header}>
+      <div className={s.inner}>
+        <Link href="/" className={s.home} aria-label={t("homeLabel")}>
+          <Brand />
+        </Link>
+        <nav className={s.nav} aria-label="Primary">
+          {children}
+          <LanguageToggle />
+          {action}
+        </nav>
+      </div>
+    </header>
+  );
+}
+
+export { s as headerStyles };
