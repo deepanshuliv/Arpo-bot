@@ -63,3 +63,24 @@
   background: var(--accent);
 }
 
+@media (max-width: 760px) {
+  .inner {
+    width: calc(100% - 32px);
+    gap: 12px;
+  }
+
+  .nav {
+    gap: 12px;
+  }
+
+  .hideSm {
+    display: none;
+  }
+
+  .nav :global(.btn-secondary) {
+    min-height: 38px;
+    padding: 0 12px;
+    font-size: 13.5px;
+  }
+}
+
