@@ -44,3 +44,22 @@
   transition: color 200ms ease;
 }
 
+.link:hover {
+  color: var(--text-primary);
+}
+
+.link[aria-current="page"] {
+  color: var(--text-primary);
+}
+
+.link[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+  background: var(--accent);
+}
+
