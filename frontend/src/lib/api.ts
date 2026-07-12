@@ -192,68 +192,94 @@ export function sendMessage({
     formData.append("image", imageFile);
     formData.append("message", message);
     formData.append("messageType", "image");
-    formData.append("role", role);
+    formData.append("role", "user");
+    formData.append("language", language);
+    if (threadId) formData.append("threadId", threadId);
 
-    const res = await fetch(API_BASE + "/api/v1/chats", {
+    return request<AskData>("/api/v1/chats", {
       method: "POST",
-      headers: {
-        Authorization: "Bearer " + token,
-
-      },
+      headers: authHeaders(),
       body: formData,
     });
-    return res.json();
   }
 
-  const res = await fetch(API_BASE + "/api/v1/chats", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + token,
-    },
-    body: JSON.stringify({ message, messageType: "text", role }),
-  });
-  return res.json();
+  return request<AskData>(
+    "/api/v1/chats",
+    jsonPost({
+      message,
+      messageType: "text",
+      role: "user",
+      language,
+      ...(threadId && { threadId }),
+    }),
+  );
 }
 
-export async function getMessages() {
-  const token = localStorage.getItem("arpo_token");
-
-  const res = await fetch(API_BASE + "/api/v1/chats", {
-    method: "GET",
-    headers: {
-      Authorization: "Bearer " + token,
-    },
-  });
-  return res.json();
+export function getLimitStatus() {
+  return request<LimitStatus>("/api/v1/limit-status", { headers: authHeaders() });
 }
 
-export async function getLimitStatus() {
-  const token = localStorage.getItem("arpo_token");
+/* ───── Knowledge base (admin) ───── */
 
-  const res = await fetch(API_BASE + "/api/v1/limit-status", {
-    method: "GET",
-    headers: {
-      Authorization: "Bearer " + token,
-    },
-  });
-  return res.json();
+export function getDocuments() {
+  return request<{ documents: IndexedDocument[]; totalPassages: number }>(
+    "/api/v1/pinecone/documents",
+    { headers: authHeaders() },
+  );
 }
 
-export async function uploadPdfs(files: File[]) {
-  const token = localStorage.getItem("arpo_token");
+export function deleteDocument(fileName: string) {
+  return request<{ fileName: string; passagesDeleted: number }>(
+    `/api/v1/pinecone/documents?fileName=${encodeURIComponent(fileName)}`,
+    { method: "DELETE", headers: authHeaders() },
+  );
+}
+
+export function uploadPdfs(files: File[]) {
   const formData = new FormData();
-  for (const file of files) {
-    formData.append("pdfFiles", file);
-  }
+  for (const file of files) formData.append("pdfFiles", file);
 
-  const res = await fetch(API_BASE + "/api/v1/pinecone/pdf", {
+  return request<PdfUploadResult>("/api/v1/pinecone/pdf", {
     method: "POST",
-    headers: {
-      Authorization: "Bearer " + token,
-
-    },
+    headers: authHeaders(),
     body: formData,
   });
-  return res.json();
+}
+
+/* ───── Team (main admin only) ───── */
+
+export interface TeamMember {
+  _id: string;
+  name: string;
+  email: string;
+  role: Role;
+  createdAt: string | null;
+}
+
+export function getTeam() {
+  return request<{ members: TeamMember[] }>("/api/v1/admin/team", {
+    headers: authHeaders(),
+  });
+}
+
+export function addSubadmin(name: string, email: string, password: string) {
+  return request<{ member: TeamMember }>(
+    "/api/v1/admin/subadmins",
+    jsonPost({ name, email, password }),
+  );
+}
+
+export function removeSubadmin(id: string) {
+  return request<void>(`/api/v1/admin/subadmins/${id}`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
+}
+
+/* ───── Session ───── */
+
+export function clearSession() {
+  localStorage.removeItem("arpo_token");
+  localStorage.removeItem("arpo_role");
+  localStorage.removeItem("arpo_name");
 }
