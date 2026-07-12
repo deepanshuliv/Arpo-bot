@@ -44,10 +44,38 @@ export interface ApiResponse<T> {
 export interface SourceDoc {
   confidenceScore: string;
   content: string;
-  metaData: string;
   sourceFile: string;
   pageNumber: number | null;
   chunkIndex: number | null;
+}
+
+export interface ThreadSummary {
+  _id: string;
+  title: string;
+  updatedAt: string;
+  createdAt: string;
+}
+
+export interface ApiMessage {
+  _id: string;
+  role: "user" | "agent";
+  message_description: string;
+  sources?: SourceDoc[];
+  createdAt: string;
+}
+
+export interface LimitStatus {
+  role: string;
+  limit: number | "Unlimited";
+  remaining: number | "Unlimited";
+  resetTime?: string | null;
+}
+
+export interface IndexedDocument {
+  fileName: string;
+  passages: number;
+  pages: number | null;
+  uploadedAt: string | null;
 }
 
 export interface PdfUploadResult {
