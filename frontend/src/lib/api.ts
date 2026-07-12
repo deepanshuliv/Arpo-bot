@@ -1,5 +1,45 @@
-
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+
+export type Language = "en" | "hi";
+
+/** Codes the backend returns so errors can be shown in the reader's language. */
+export type ErrorCode =
+  | "UNAUTHORIZED"
+  | "INVALID_INPUT"
+  | "RATE_LIMITED"
+  | "IMAGE_FAILED"
+  | "NO_ANSWER"
+  | "NOT_FOUND"
+  | "AI_UNAVAILABLE"
+  | "AI_BUSY"
+  | "FORBIDDEN"
+  | "EMAIL_TAKEN"
+  | "ALREADY_STAFF"
+  | "NAME_REQUIRED"
+  | "INVALID_EMAIL"
+  | "PASSWORD_TOO_SHORT"
+  | "ACCOUNT_NOT_FOUND"
+  | "WRONG_PASSWORD"
+  | "PASSWORDS_DONT_MATCH"
+  | "RESET_DISABLED"
+  | "TOO_MANY_ATTEMPTS"
+  | "SERVER_ERROR"
+  | "NETWORK";
+
+export type Role = "user" | "subadmin" | "admin";
+
+/** Admins and sub-admins: knowledge-base access and no question limit. */
+export function isStaffRole(role: string | undefined | null) {
+  return role === "admin" || role === "subadmin";
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  code?: ErrorCode;
+  message?: string;
+  refillIn?: number;
+  data?: T;
+}
 
 export interface SourceDoc {
   confidenceScore: string;
