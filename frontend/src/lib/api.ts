@@ -88,40 +88,105 @@ export interface PdfUploadResult {
   }>;
 }
 
-export async function signUp(name: string, email: string, password: string) {
-  const res = await fetch(API_BASE + "/api/v1/signup", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, email, password }),
-  });
-  return res.json();
-}
-
-export async function signIn(email: string, password: string) {
-  const res = await fetch(API_BASE + "/api/v1/signin", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  });
-  return res.json();
-}
-
-export async function adminSignIn(email: string, password: string) {
-  const res = await fetch(API_BASE + "/api/v1/admin/signin", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  });
-  return res.json();
-}
-
-export async function sendMessage(
-  message: string,
-  role: string = "user",
-  imageFile?: File,
-) {
+function authHeaders(): Record<string, string> {
   const token = localStorage.getItem("arpo_token");
+  return token ? { Authorization: "Bearer " + token } : {};
+}
 
+/** fetch + JSON that never throws: network failures become code NETWORK. */
+async function request<T>(path: string, init: RequestInit = {}): Promise<ApiResponse<T>> {
+  try {
+    const res = await fetch(API_BASE + path, init);
+    const body = (await res.json().catch(() => ({}))) as ApiResponse<T>;
+    if (!res.ok && body.success !== false) {
+      return { success: false, code: "SERVER_ERROR", message: res.statusText };
+    }
+    return body;
+  } catch {
+    return { success: false, code: "NETWORK" };
+  }
+}
+
+function jsonPost(body: unknown): RequestInit {
+  return {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(body),
+  };
+}
+
+/* ───── Accounts ───── */
+
+interface AuthData {
+  token: string;
+  role?: string;
+  name?: string;
+}
+
+export function signUp(name: string, email: string, password: string) {
+  return request<AuthData>("/api/v1/signup", jsonPost({ name, email, password }));
+}
+
+export function signIn(email: string, password: string) {
+  return request<AuthData>("/api/v1/signin", jsonPost({ email, password }));
+}
+
+export function adminSignIn(email: string, password: string) {
+  return request<AuthData>("/api/v1/admin/signin", jsonPost({ email, password }));
+}
+
+/** Local-only reset (no email). Off unless the backend enables it. */
+export function getResetStatus() {
+  return request<{ enabled: boolean }>("/api/v1/password/reset");
+}
+
+export function resetPassword(email: string, password: string, confirmPassword: string) {
+  return request<void>(
+    "/api/v1/password/reset",
+    jsonPost({ email, password, confirmPassword }),
+  );
+}
+
+/* ───── Conversations ───── */
+
+export function getThreads() {
+  return request<{ threads: ThreadSummary[] }>("/api/v1/threads", {
+    headers: authHeaders(),
+  });
+}
+
+export function getThreadMessages(threadId: string) {
+  return request<{ thread: ThreadSummary; messages: ApiMessage[] }>(
+    `/api/v1/threads/${threadId}/messages`,
+    { headers: authHeaders() },
+  );
+}
+
+export function deleteThread(threadId: string) {
+  return request<void>(`/api/v1/threads/${threadId}`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
+}
+
+interface AskData {
+  thread: ThreadSummary;
+  response: string;
+  sources: SourceDoc[];
+}
+
+/** Ask a question; omit threadId to start a new conversation. */
+export function sendMessage({
+  message,
+  imageFile,
+  threadId,
+  language,
+}: {
+  message: string;
+  imageFile?: File;
+  threadId?: string | null;
+  language: Language;
+}) {
   if (imageFile) {
     const formData = new FormData();
     formData.append("image", imageFile);
