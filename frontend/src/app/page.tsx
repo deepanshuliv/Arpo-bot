@@ -1,143 +1,130 @@
-"use client";
-
 import Link from "next/link";
+import { getFormatter, getTranslations } from "next-intl/server";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  BookOpenText,
+} from "@phosphor-icons/react/dist/ssr";
+import SiteHeader, { headerStyles } from "@/components/SiteHeader";
 import s from "./landing.module.css";
 
-export default function LandingPage() {
+const capabilities = ["manuals", "badges", "fieldcraft", "sources"] as const;
+const steps = ["one", "two", "three", "four"] as const;
+
+const LAST_UPDATED = new Date("2026-09-28");
+
+export default async function LandingPage() {
+  const t = await getTranslations("landing");
+  const th = await getTranslations("header");
+  const format = await getFormatter();
+  const em = (chunks: React.ReactNode) => <em>{chunks}</em>;
+
   return (
     <div className={s.page}>
-      {}
-      <div className={s.ambientGlow} />
-      <div className={s.gridPattern} />
+      <div className={s.contours} aria-hidden="true" />
 
-      {}
-      <nav className={s.nav}>
-        <div className={s.navInner}>
-          <div className={s.navBrand}>
-            <div className={s.navLogo}>
-              <img src="/logo.png" alt="ARPO Logo" className={s.logoImage} />
+      <SiteHeader
+        action={
+          <Link href="/auth" className="btn-secondary">
+            {th("signIn")}
+          </Link>
+        }
+      >
+        <Link href="/admin/auth" className={`${headerStyles.link} ${headerStyles.hideSm}`}>
+          {th("forLeaders")}
+        </Link>
+      </SiteHeader>
+
+      <main id="main">
+        <section className={s.hero} aria-labelledby="hero-title">
+          <div className={s.heroCopy}>
+            <p className="eyebrow">{t("eyebrow")}</p>
+            <h1 id="hero-title" className={s.heroTitle}>
+              {t.rich("heroTitle", { em })}
+            </h1>
+            <p className={s.heroDesc}>{t("heroDesc")}</p>
+            <div className={s.heroActions}>
+              <Link href="/auth" className="btn-primary">
+                {t("ctaPrimary")}
+                <ArrowRight size={16} weight="bold" aria-hidden="true" />
+              </Link>
+              <Link href="/admin" className={s.textLink}>
+                {t("ctaSecondary")}
+                <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
+              </Link>
             </div>
-            <span className={s.navTitle}>ARPO</span>
           </div>
 
-          <div className={s.navActions}>
-            <Link href="/admin" className={s.navLink}>
-              Admin
-            </Link>
-            <Link href="/auth" className={s.navBtnPrimary}>
-              Get Started
-            </Link>
+          <figure className={s.specimen} aria-label={t("specimen.label")}>
+            <div className={s.specimenBar}>
+              <span>{t("specimen.label")}</span>
+              <span className={s.specimenTime}>{t("specimen.time")}</span>
+            </div>
+
+            <div className={s.specimenBody}>
+              <p className={s.question}>{t("specimen.question")}</p>
+
+              <div className={s.answer}>
+                <p>{t("specimen.answerIntro")}</p>
+                <ol>
+                  {steps.map((step) => (
+                    <li key={step}>{t(`specimen.steps.${step}`)}</li>
+                  ))}
+                </ol>
+              </div>
+
+              <figcaption className={s.citation}>
+                <BookOpenText size={14} aria-hidden="true" />
+                <span>{t("specimen.source")}</span>
+                <span className={s.citationMeta}>{t("specimen.sourceMeta")}</span>
+              </figcaption>
+            </div>
+          </figure>
+        </section>
+
+        <section className={s.features} aria-labelledby="features-title">
+          <div className={s.featuresIntro}>
+            <p className="eyebrow">{t("features.eyebrow")}</p>
+            <h2 id="features-title">{t("features.title")}</h2>
+            <p>{t("features.desc")}</p>
           </div>
-        </div>
-      </nav>
 
-      {}
-      <section className={s.hero}>
-        {}
-        <div className={s.heroBadge}>
-          <span className={s.heroBadgeDot} />
-          <span className={s.heroBadgeText}>AI Scout Assistant</span>
-        </div>
+          <ol className={s.featureList}>
+            {capabilities.map((key, i) => (
+              <li className={s.featureItem} key={key}>
+                <span className={s.featureIndex}>{String(i + 1).padStart(2, "0")}</span>
+                <div>
+                  <h3>{t(`features.items.${key}.title`)}</h3>
+                  <p>{t(`features.items.${key}.description`)}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
 
-        {}
-        <h1 className={s.heroTitle}>
-          <span className={s.heroGradientText}>
-            Master the Art of
-            <br />
-            Modern Scouting
-          </span>
-        </h1>
-
-        {}
-        <p className={s.heroDesc}>
-          Your intelligent companion for the{" "}
-          <strong>Bharat Scouts &amp; Guides</strong>. Instant access to
-          verified protocols, badge requirements, and field guides.
-        </p>
-
-        {}
-        <div className={s.heroButtons}>
-          <Link href="/auth" className={s.heroBtnLaunch}>
-            <span className={s.heroBtnIcon}>
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <polygon points="5 3 19 12 5 21 5 3" />
-              </svg>
-            </span>
-            Launch Assistant
+        <section className={s.closing} aria-labelledby="closing-title">
+          <h2 id="closing-title">{t.rich("closing.title", { em })}</h2>
+          <Link href="/auth" className="btn-primary">
+            {t("closing.cta")}
+            <ArrowRight size={16} weight="bold" aria-hidden="true" />
           </Link>
-          <Link href="/admin" className={s.heroBtnAdmin}>
-            Admin Panel
-          </Link>
-        </div>
+        </section>
+      </main>
 
-        {}
-        <p className={s.heroTrust}>
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            style={{ opacity: 0.5 }}
-          >
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-          </svg>
-          Powered by RAG • Grounded in official BSG documents
-        </p>
-      </section>
-
-      {}
-      <section className={s.features}>
-        <div className={s.featuresGrid}>
-          {}
-          <div className={s.featureCard}>
-            <div className={s.featureIconOrange}>01</div>
-            <h3 className={s.featureTitle}>Verified Knowledge</h3>
-            <p className={s.featureDesc}>
-              Direct access to official APRO rules and BSG guidelines. Every
-              response is grounded in real documents — no hallucinations.
-            </p>
-          </div>
-
-          {}
-          <div className={s.featureCard}>
-            <div className={s.featureIconWhite}>02</div>
-            <h3 className={s.featureTitle}>Badge Tracker</h3>
-            <p className={s.featureDesc}>
-              Complete requirements for every proficiency badge from Pratham
-              Sopan to Rajya Puraskar, organized step by step.
-            </p>
-          </div>
-
-          {}
-          <div className={s.featureCard}>
-            <div className={s.featureIconGreen}>03</div>
-            <h3 className={s.featureTitle}>Field Ready</h3>
-            <p className={s.featureDesc}>
-              Optimized for low-bandwidth environments. Access camping
-              protocols, first-aid guides, and knot references anywhere.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {}
       <footer className={s.footer}>
-        <p className={s.footerText}>
-          © 2024 ARPO Bot • Built for Bharat Scouts &amp; Guides
-        </p>
+        <div className={s.footerInfo}>
+          <span>{t("footer.service")}</span>
+          <span>{t("footer.disclaimer")}</span>
+          <span className="tabular">
+            {t("footer.lastUpdated", {
+              date: format.dateTime(LAST_UPDATED, { day: "numeric", month: "long", year: "numeric" }),
+            })}
+          </span>
+        </div>
+        <nav className={s.footerLinks} aria-label="Footer">
+          <Link href="/auth">{t("footer.signIn")}</Link>
+          <Link href="/admin/auth">{t("footer.adminSignIn")}</Link>
+        </nav>
       </footer>
     </div>
   );
