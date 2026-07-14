@@ -1,96 +1,270 @@
-.container {
-  min-height: 100vh;
+.page {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
+  flex-direction: column;
+  height: var(--page-h);
   overflow: hidden;
+  background: var(--bg-primary);
 }
 
-.gridBg {
+.container {
+  display: grid;
+  flex: 1;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  min-height: 0;
+}
+
+/* ═════ Trail map ═════ */
+
+.trail {
+  position: relative;
+  margin: 16px 0 16px 16px;
+  overflow: hidden;
+  border-radius: 18px;
+  background:
+    radial-gradient(70% 55% at 85% 10%, rgba(240, 165, 122, 0.16), transparent 60%),
+    var(--walnut);
+  color: var(--on-walnut);
+  box-shadow: 0 30px 60px -36px rgba(40, 20, 8, 0.6);
+  animation: fade 700ms ease-out both;
+}
+
+.trailContours {
+  position: absolute;
+  inset: -20%;
+  pointer-events: none;
+  background:
+    repeating-radial-gradient(
+      ellipse 42% 34% at 70% 30%,
+      transparent 0 26px,
+      rgba(243, 231, 218, 0.06) 26px 27px
+    ),
+    repeating-radial-gradient(
+      ellipse 36% 30% at 18% 82%,
+      transparent 0 22px,
+      rgba(243, 231, 218, 0.045) 22px 23px
+    );
+}
+
+.trailPath {
   position: absolute;
   inset: 0;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-  background-size: 60px 60px;
-  pointer-events: none;
-}
-
-.card {
-  position: relative;
   width: 100%;
-  max-width: 420px;
-  padding: 40px 36px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  animation: fadeIn 0.5s ease-out;
-  margin: 20px;
+  height: 100%;
+  color: var(--ember);
 }
 
-.logoSection {
-  text-align: center;
-  margin-bottom: 32px;
+.trailPath path {
+  stroke-dashoffset: 400;
+  animation: walk 2.4s 300ms var(--ease-out) forwards;
 }
 
-.logoIcon {
-  display: inline-flex;
+.trailTitle {
+  position: relative;
+  max-width: 18ch;
+  padding: 40px 40px 0;
+  color: var(--on-walnut);
+  font-size: clamp(1.7rem, 2.6vw, 2.3rem);
+  font-weight: var(--weight-display);
+  letter-spacing: var(--tracking-display);
+  line-height: 1.15;
+}
+
+.waypoints {
+  list-style: none;
+}
+
+.waypoints li {
+  position: absolute;
+  animation: rise 600ms var(--ease-out) both;
+}
+
+.waypoints li:nth-child(1) {
+  animation-delay: 500ms;
+}
+
+.waypoints li:nth-child(2) {
+  animation-delay: 1100ms;
+}
+
+.waypoints li:nth-child(3) {
+  animation-delay: 1700ms;
+}
+
+.pin {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  width: 16px;
+  height: 16px;
+  border: 3px solid var(--ember);
+  border-radius: 50%;
+  background: var(--walnut);
+}
+
+.pin[data-start] {
+  background: var(--ember);
+  box-shadow: 0 0 0 6px rgba(240, 165, 122, 0.2);
+}
+
+.flag {
+  position: absolute;
+  bottom: 0;
+  left: -1px;
+  width: 2px;
+  height: 30px;
+  background: var(--on-walnut);
+}
+
+.flag::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 2px;
+  width: 20px;
+  height: 14px;
+  background: var(--accent);
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+
+.pinLabel {
+  position: absolute;
+  top: -12px;
+  left: 18px;
+  display: flex;
+  flex-direction: column;
+  width: max-content;
+  max-width: 180px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(20, 12, 8, 0.55);
+  box-shadow: inset 0 0 0 1px var(--on-walnut-line);
+  color: var(--on-walnut);
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.3;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.pinLabel small {
+  color: var(--ember);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.pinLabelBelow {
+  top: 8px;
+  right: -12px;
+  left: auto;
+}
+
+.quote {
+  position: absolute;
+  right: 40px;
+  bottom: 32px;
+  left: 40px;
+}
+
+.quote p {
+  max-width: 34ch;
+  color: var(--on-walnut);
+  font-size: 15.5px;
+  line-height: 1.5;
+}
+
+.quote footer {
+  margin-top: 6px;
+  color: var(--on-walnut-muted);
+  font-size: 13px;
+}
+
+/* ═════ Form ═════ */
+
+.formSide {
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 56px;
-  height: 56px;
-  border-radius: 14px;
-  background: var(--accent-dim);
-  color: var(--accent);
-  margin-bottom: 16px;
+  min-height: 0;
+  padding: 24px 40px;
+  overflow-y: auto;
 }
 
-.logoText {
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--text-primary);
-  margin-bottom: 4px;
+.formInner {
+  width: min(100%, 420px);
+  animation: rise 600ms var(--ease-out) both;
 }
 
-.logoSub {
-  font-size: 13px;
-  color: var(--text-muted);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+.heading h1 {
+  font-size: var(--text-h1);
+  font-weight: var(--weight-display);
+  letter-spacing: var(--tracking-display);
+  line-height: 1.1;
+  text-wrap: balance;
 }
 
-.tabBar {
+.heading p {
+  max-width: 38ch;
+  margin-top: 10px;
+  color: var(--text-secondary);
+  font-size: 16px;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.notice {
   display: flex;
-  gap: 4px;
-  background: var(--bg-primary);
-  border-radius: 12px;
-  padding: 4px;
-  margin-bottom: 28px;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 22px;
+  padding: 12px 14px;
+  border-left: 3px solid var(--accent);
+  border-radius: 4px 10px 10px 4px;
+  background: var(--accent-dim);
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.5;
 }
 
-.tab {
-  flex: 1;
-  padding: 10px;
-  border: none;
+.notice svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--accent);
+}
+
+.segmented {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  margin: 28px 0 22px;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--bg-tertiary);
+}
+
+.segment {
+  min-height: 38px;
+  border: 0;
+  border-radius: 9px;
   background: transparent;
-  color: var(--text-muted);
-  font-size: 13px;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 15px;
   font-weight: 500;
   cursor: pointer;
-  border-radius: 9px;
-  transition: all 0.2s ease;
-  font-family: inherit;
+  transition:
+    background-color 200ms ease,
+    color 200ms ease,
+    box-shadow 200ms ease;
 }
 
-.tab:hover {
-  color: var(--text-secondary);
-}
-
-.tabActive {
-  background: var(--bg-tertiary);
+.segment:hover {
   color: var(--text-primary);
+}
+
+.segment[aria-pressed="true"] {
+  background: var(--paper);
+  color: var(--text-primary);
+  font-weight: 600;
+  box-shadow: 0 4px 12px -6px var(--shadow-color);
 }
 
 .form {
