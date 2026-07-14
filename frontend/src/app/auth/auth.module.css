@@ -273,39 +273,218 @@
   gap: 18px;
 }
 
+.formSpaced {
+  margin-top: 26px;
+}
+
 .field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  animation: fadeIn 0.3s ease-out;
+  gap: 7px;
+  animation: rise 360ms var(--ease-out) both;
+}
+
+.field input {
+  background: var(--paper);
 }
 
 .label {
-  font-size: 12px;
-  font-weight: 500;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
   color: var(--text-secondary);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.hint {
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.labelRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.forgot {
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.forgot:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 20px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.backLink:hover {
+  color: var(--text-primary);
+}
+
+/* Reset result: success or unavailable */
+.resultCard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  animation: rise 500ms var(--ease-out) both;
+}
+
+.resultCard h1 {
+  font-size: var(--text-h1);
+  font-weight: var(--weight-display);
+  letter-spacing: var(--tracking-display);
+  line-height: 1.1;
+}
+
+.resultCard p {
+  max-width: 38ch;
+  margin-bottom: 12px;
+  color: var(--text-secondary);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.resultIcon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 4px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--success) 14%, transparent);
+  color: var(--success);
+}
+
+.resultIcon[data-tone="muted"] {
+  background: var(--accent-dim);
+  color: var(--accent);
+}
+
+.submitBtn {
+  width: 100%;
+  margin-top: 6px;
 }
 
 .error {
-  font-size: 13px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 14px;
+  border-left: 3px solid var(--danger);
+  border-radius: 4px 10px 10px 4px;
+  background: var(--danger-dim);
   color: var(--danger);
-  text-align: center;
-  padding: 10px;
-  background: rgba(255, 68, 68, 0.08);
-  border-radius: 8px;
-  border: 1px solid rgba(255, 68, 68, 0.15);
+  font-size: 14px;
+  line-height: 1.5;
+  animation: shake 320ms ease-out;
+}
+
+.error svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Message under a single field */
+.fieldError {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  color: var(--danger);
+  font-size: 13.5px;
+  line-height: 1.45;
+  animation: fade 200ms ease-out;
+}
+
+.fieldError svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.field input[aria-invalid="true"] {
+  border-color: color-mix(in srgb, var(--danger) 70%, transparent);
+  box-shadow: 0 0 0 3px var(--danger-dim);
+}
+
+.inlineAction {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.inlineAction:hover {
+  color: var(--accent-hover);
 }
 
 .spinner {
-  display: inline-block;
-  width: 18px;
-  height: 18px;
-  border: 2px solid rgba(0, 0, 0, 0.2);
-  border-top-color: #000;
+  width: 14px;
+  height: 14px;
+  border: 2px solid color-mix(in srgb, var(--accent-ink) 35%, transparent);
+  border-top-color: var(--accent-ink);
   border-radius: 50%;
-  animation: spin 0.6s linear infinite;
+  animation: spin 700ms linear infinite;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+@keyframes walk {
+  to {
+    stroke-dashoffset: 0;
+  }
 }
 
 @keyframes spin {
