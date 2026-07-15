@@ -71,3 +71,24 @@ export function serverError(code: ErrorCode | undefined): FieldErrors {
   }
 }
 
+/** Message shown under a field, linked to the input with aria-describedby. */
+export function FieldError({
+  id,
+  message,
+  action,
+}: {
+  id: string;
+  message?: string;
+  action?: React.ReactNode;
+}) {
+  if (!message) return null;
+  return (
+    <p id={id} className={styles.fieldError} role="alert">
+      <WarningCircle size={16} weight="fill" aria-hidden="true" />
+      <span>
+        {message}
+        {action && <> {action}</>}
+      </span>
+    </p>
+  );
+}
