@@ -24,3 +24,26 @@ export type FieldErrors = Partial<Record<AuthField, AuthErrorKey>>;
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/** Checks the form before it is sent; returns an error per invalid field. */
+export function validate(
+  values: { name?: string; email: string; password: string; confirm?: string },
+  mode: "signIn" | "signUp" | "reset",
+): FieldErrors {
+  const errors: FieldErrors = {};
+  if (mode === "signUp" && !values.name?.trim()) errors.name = "NAME_REQUIRED";
+
+  const email = values.email.trim();
+  if (!email) errors.email = "EMAIL_REQUIRED";
+  else if (!EMAIL_PATTERN.test(email)) errors.email = "INVALID_EMAIL";
+
+  if (!values.password) errors.password = "PASSWORD_REQUIRED";
+  else if (mode !== "signIn" && values.password.length < 6) errors.password = "PASSWORD_TOO_SHORT";
+
+  if (mode === "reset") {
+    if (!values.confirm) errors.confirm = "CONFIRM_REQUIRED";
+    else if (values.confirm !== values.password) errors.confirm = "PASSWORDS_DONT_MATCH";
+  }
+
+  return errors;
+}
+
