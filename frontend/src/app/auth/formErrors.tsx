@@ -19,3 +19,8 @@ export type AuthErrorKey =
   | "NETWORK"
   | "SERVER_ERROR";
 
+export type AuthField = "name" | "email" | "password" | "confirm" | "form";
+export type FieldErrors = Partial<Record<AuthField, AuthErrorKey>>;
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
