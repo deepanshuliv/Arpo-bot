@@ -47,3 +47,27 @@ export function validate(
   return errors;
 }
 
+/** Places a server error code on the field it belongs to. */
+export function serverError(code: ErrorCode | undefined): FieldErrors {
+  switch (code) {
+    case "NAME_REQUIRED":
+      return { name: code };
+    case "INVALID_EMAIL":
+    case "EMAIL_TAKEN":
+    case "ACCOUNT_NOT_FOUND":
+      return { email: code };
+    case "PASSWORD_TOO_SHORT":
+    case "WRONG_PASSWORD":
+      return { password: code };
+    case "PASSWORDS_DONT_MATCH":
+      return { confirm: code };
+    case "FORBIDDEN":
+    case "RESET_DISABLED":
+    case "TOO_MANY_ATTEMPTS":
+    case "NETWORK":
+      return { form: code };
+    default:
+      return { form: "SERVER_ERROR" };
+  }
+}
+
