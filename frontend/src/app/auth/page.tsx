@@ -228,3 +228,11 @@ function AuthPageContent() {
     </div>
   );
 }
+
+export default function AuthPage() {
+  return (
+    <Suspense>
+      <AuthPageContent />
+    </Suspense>
+  );
+}
