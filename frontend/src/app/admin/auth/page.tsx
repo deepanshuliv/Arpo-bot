@@ -193,3 +193,11 @@ function AdminAuthContent() {
     </div>
   );
 }
+
+export default function AdminAuthPage() {
+  return (
+    <Suspense>
+      <AdminAuthContent />
+    </Suspense>
+  );
+}
