@@ -43,3 +43,41 @@
   padding: 22px 18px 18px;
 }
 
+.home {
+  color: inherit;
+  text-decoration: none;
+}
+
+.sideToggle {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--on-walnut-muted);
+  cursor: pointer;
+  transition:
+    background-color 200ms ease,
+    color 200ms ease;
+}
+
+.sideToggle:hover {
+  background: rgba(243, 231, 218, 0.1);
+  color: var(--on-walnut);
+}
+
+.sideBody {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 22px;
+  min-height: 0;
+  padding: 4px 14px 16px;
+  overflow-y: auto;
+  scrollbar-color: rgba(243, 231, 218, 0.2) transparent;
+}
+
