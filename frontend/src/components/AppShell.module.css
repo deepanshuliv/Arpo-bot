@@ -1,0 +1,45 @@
+.shell {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  overflow: hidden;
+  background: var(--bg-primary);
+}
+
+/* ───── Walnut sidebar ───── */
+.sidebar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  width: 280px;
+  height: 100%;
+  overflow: hidden;
+  transition: margin-left 320ms var(--ease-out);
+  background: var(--walnut);
+  color: var(--on-walnut);
+}
+
+.contours {
+  position: absolute;
+  inset: -40% -60% auto -40%;
+  height: 520px;
+  pointer-events: none;
+  background: repeating-radial-gradient(
+    ellipse 50% 42% at 32% 38%,
+    transparent 0 24px,
+    rgba(243, 231, 218, 0.055) 24px 25px
+  );
+  mask-image: linear-gradient(to bottom, black 20%, transparent 90%);
+  -webkit-mask-image: linear-gradient(to bottom, black 20%, transparent 90%);
+}
+
+.sideTop {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 18px 18px;
+}
+
