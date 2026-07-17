@@ -196,3 +196,33 @@ function ResetForm() {
   );
 }
 
+export default function ResetPasswordPage() {
+  const th = useTranslations("header");
+
+  return (
+    <div className={styles.page}>
+      <SiteHeader
+        action={
+          <Link href="/auth" className="btn-secondary">
+            {th("signIn")}
+          </Link>
+        }
+      >
+        <Link href="/" className={`${headerStyles.link} ${headerStyles.hideSm}`}>
+          {th("home")}
+        </Link>
+      </SiteHeader>
+
+      <div className={styles.container}>
+        <TrailPanel />
+        <main id="main" className={styles.formSide}>
+          <div className={styles.formInner}>
+            <Suspense>
+              <ResetForm />
+            </Suspense>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+}
