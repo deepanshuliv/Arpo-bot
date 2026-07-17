@@ -81,3 +81,60 @@
   scrollbar-color: rgba(243, 231, 218, 0.2) transparent;
 }
 
+/* Shared sidebar building blocks, used by chat and admin */
+.primaryAction {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 240, 225, 0.25);
+  transition:
+    background-color 200ms ease,
+    transform 200ms var(--ease-out);
+}
+
+.primaryAction:hover {
+  background: color-mix(in srgb, var(--accent) 88%, white);
+}
+
+.primaryAction:active {
+  transform: scale(0.98);
+}
+
+.navList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  list-style: none;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: rgba(243, 231, 218, 0.82);
+  font-family: inherit;
+  font-size: 15px;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color 200ms ease,
+    color 200ms ease;
+}
+
