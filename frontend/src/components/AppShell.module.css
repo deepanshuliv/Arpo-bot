@@ -138,3 +138,43 @@
     color 200ms ease;
 }
 
+.navItem:hover {
+  background: rgba(243, 231, 218, 0.07);
+  color: #fff;
+}
+
+.navItem[aria-current="page"],
+.navItem[aria-current="true"] {
+  background: rgba(243, 231, 218, 0.12);
+  color: #fff;
+}
+
+.navItem svg {
+  flex-shrink: 0;
+  color: var(--ember);
+}
+
+.groupLabel {
+  margin: 0 10px 6px;
+  color: var(--on-walnut-muted);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.sideFoot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 14px 16px 16px;
+  border-top: 1px solid var(--on-walnut-line);
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
