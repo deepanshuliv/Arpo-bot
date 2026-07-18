@@ -219,3 +219,41 @@
     color 200ms ease;
 }
 
+.signOut:hover {
+  background: rgba(243, 231, 218, 0.08);
+  color: var(--on-walnut);
+}
+
+/* ───── Main ───── */
+.main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background:
+    radial-gradient(60% 40% at 100% 0%, color-mix(in srgb, var(--ambient) 12%, transparent), transparent 70%),
+    var(--bg-primary);
+}
+
+.topBar {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 14px;
+  height: 64px;
+  padding: 0 28px;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-secondary) 55%, transparent);
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 17px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
