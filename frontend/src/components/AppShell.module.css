@@ -257,3 +257,74 @@
   white-space: nowrap;
 }
 
+/* Desktop: slide the sidebar out; the page takes the full width */
+.shell[data-collapsed] .sidebar {
+  margin-left: -280px;
+}
+
+.menuBtn {
+  display: none;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  margin-left: -6px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.shell[data-collapsed] .menuBtn {
+  display: grid;
+  animation: fadeIn 250ms ease-out;
+}
+
+.scrim {
+  display: none;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 860px) {
+  .sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: min(300px, 86vw);
+    transform: translateX(-102%);
+    transition: transform 320ms var(--ease-out);
+  }
+
+  .sidebar[data-open] {
+    box-shadow: 20px 0 60px -20px rgba(20, 10, 4, 0.5);
+    transform: translateX(0);
+  }
+
+  .menuBtn {
+    display: grid;
+  }
+
+  /* On small screens the sidebar is a drawer; collapsing does not apply */
+  .shell[data-collapsed] .sidebar {
+    margin-left: 0;
+  }
+
+  .scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    display: block;
+    background: rgba(30, 18, 10, 0.4);
+  }
+
+  .topBar {
+    padding: 0 16px;
+  }
+}
