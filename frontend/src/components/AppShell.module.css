@@ -178,3 +178,44 @@
   min-width: 0;
 }
 
+.avatar {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: var(--walnut-raised);
+  box-shadow: inset 0 0 0 1px var(--on-walnut-line);
+  color: var(--ember);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.userName {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.signOut {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--on-walnut-muted);
+  font-family: inherit;
+  font-size: 13.5px;
+  cursor: pointer;
+  transition:
+    background-color 200ms ease,
+    color 200ms ease;
+}
+
