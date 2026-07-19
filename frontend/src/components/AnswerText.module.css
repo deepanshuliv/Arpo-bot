@@ -1,0 +1,21 @@
+.answer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--text-secondary);
+  font-size: 16px;
+  line-height: 1.7;
+  word-break: break-word;
+}
+
+.answer strong,
+.answer h4 {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.answer h4 {
+  margin-top: 4px;
+  font-size: 16px;
+}
+
