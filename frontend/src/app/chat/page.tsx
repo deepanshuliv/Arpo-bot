@@ -1,13 +1,42 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
 import {
-  sendMessage,
-  getMessages,
+  ArrowUp,
+  ArrowUpRight,
+  BookOpenText,
+  Books,
+  FirstAidKit,
+  ImageSquare,
+  Medal,
+  NotePencil,
+  Paperclip,
+  Lasso,
+  Trash,
+  WarningCircle,
+  X,
+} from "@phosphor-icons/react";
+import AppShell, { shellStyles } from "@/components/AppShell";
+import AnswerText from "@/components/AnswerText";
+import Logo from "@/components/Logo";
+import {
+  deleteThread,
   getLimitStatus,
+  getThreadMessages,
+  getThreads,
+  isStaffRole,
+  sendMessage,
+  type ErrorCode,
+  type Language,
+  type LimitStatus,
   type SourceDoc,
+  type ThreadSummary,
 } from "@/lib/api";
+import { useSession } from "@/lib/session";
 import styles from "./chat.module.css";
 
 interface Message {

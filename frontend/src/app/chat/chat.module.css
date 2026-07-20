@@ -736,26 +736,54 @@
   }
 }
 
-@keyframes spin {
+@keyframes fade {
   from {
-    transform: rotate(0deg);
+    opacity: 0;
   }
   to {
-    transform: rotate(360deg);
+    opacity: 1;
   }
 }
 
-/* ───── Responsive ───── */
-@media (max-width: 768px) {
-  .sidebar {
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+  40% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (max-width: 860px) {
+  .scroll {
+    padding: 24px 16px 12px;
+  }
+
+  .composerArea {
+    padding: 6px 12px 12px;
+  }
+
+  .hint {
     display: none;
   }
 
-  .inputArea {
-    padding: 12px 16px 20px;
+  .question {
+    max-width: 88%;
   }
 
-  .messagesContainer {
-    padding: 16px;
+  .historyDelete {
+    opacity: 1;
   }
 }
