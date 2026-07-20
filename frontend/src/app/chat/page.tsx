@@ -46,10 +46,82 @@ interface Message {
   sources?: SourceDoc[];
   imagePreview?: string;
   timestamp: Date;
+  error?: { code: ErrorCode; refillIn?: number };
+}
+
+type HistoryGroup = "today" | "yesterday" | "week" | "earlier";
+
+function groupOf(date: Date): HistoryGroup {
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const day = 24 * 60 * 60 * 1000;
+  const t = date.getTime();
+  if (t >= startOfToday.getTime()) return "today";
+  if (t >= startOfToday.getTime() - day) return "yesterday";
+  if (t >= startOfToday.getTime() - 7 * day) return "week";
+  return "earlier";
+}
+
+/** One stamp per source file, with the pages it cited. */
+function groupSources(sources: SourceDoc[]) {
+  const byFile = new Map<
+    string,
+    { file: string; pages: number[]; passages: SourceDoc[] }
+  >();
+  for (const src of sources) {
+    const entry = byFile.get(src.sourceFile) ?? {
+      file: src.sourceFile,
+      pages: [],
+      passages: [],
+    };
+    if (src.pageNumber != null && !entry.pages.includes(src.pageNumber)) {
+      entry.pages.push(src.pageNumber);
+    }
+    entry.passages.push(src);
+    byFile.set(src.sourceFile, entry);
+  }
+  return [...byFile.values()].map((e) => ({
+    ...e,
+    pages: e.pages.sort((a, b) => a - b),
+  }));
+}
+
+const CHAT_ERRORS = [
+  "RATE_LIMITED",
+  "AI_UNAVAILABLE",
+  "AI_BUSY",
+  "IMAGE_FAILED",
+  "NO_ANSWER",
+  "NOT_FOUND",
+  "INVALID_INPUT",
+  "UNAUTHORIZED",
+  "FORBIDDEN",
+  "NETWORK",
+] as const;
+
+/** Codes the chat has a message for; anything else reads as a general error. */
+function chatErrorKey(code: ErrorCode) {
+  return (CHAT_ERRORS as readonly string[]).includes(code)
+    ? (code as (typeof CHAT_ERRORS)[number])
+    : "SERVER_ERROR";
+}
+
+function readableFile(name: string) {
+  return name
+    .replace(/\.pdf$/i, "")
+    .replace(/[_-]+/g, " ")
+    .trim();
 }
 
 export default function ChatPage() {
+  const t = useTranslations("chat");
+  const th = useTranslations("header");
+  const format = useFormatter();
+  const locale = useLocale() as Language;
   const router = useRouter();
+
+  const [threads, setThreads] = useState<ThreadSummary[]>([]);
+  const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
