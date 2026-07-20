@@ -40,3 +40,30 @@ function toBlocks(text: string): Block[] {
   return blocks.filter((b) => b.type !== "p" || b.lines.length > 0);
 }
 
+/** Bold (**x**), [Source: …] tags and leading [ ] / [x] checkboxes inside a line. */
+function inline(text: string): React.ReactNode {
+  const box = text.match(/^\[( |x|X)\]\s+/);
+  if (box) {
+    return (
+      <>
+        <span className={s.check} data-done={box[1].toLowerCase() === "x" || undefined} aria-hidden="true" />
+        {inline(text.slice(box[0].length))}
+      </>
+    );
+  }
+  const parts = text.split(/(\*\*[^*]+\*\*|\[Source:[^\]]+\])/g);
+  return parts.map((part, i) => {
+    if (part.startsWith("**") && part.endsWith("**")) {
+      return <strong key={i}>{part.slice(2, -2)}</strong>;
+    }
+    if (part.startsWith("[Source:")) {
+      return (
+        <span key={i} className={s.cite}>
+          {part.slice(8, -1).trim()}
+        </span>
+      );
+    }
+    return <Fragment key={i}>{part}</Fragment>;
+  });
+}
+
