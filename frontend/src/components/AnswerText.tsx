@@ -67,3 +67,32 @@ function inline(text: string): React.ReactNode {
   });
 }
 
+export default function AnswerText({ text }: { text: string }) {
+  return (
+    <div className={s.answer}>
+      {toBlocks(text).map((block, i) => {
+        if (block.type === "h") return <h4 key={i}>{inline(block.text)}</h4>;
+        if ("items" in block) {
+          const List = block.type;
+          return (
+            <List key={i}>
+              {block.items.map((item, j) => (
+                <li key={j}>{inline(item)}</li>
+              ))}
+            </List>
+          );
+        }
+        return (
+          <p key={i}>
+            {block.lines.map((line, j) => (
+              <Fragment key={j}>
+                {j > 0 && <br />}
+                {inline(line)}
+              </Fragment>
+            ))}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
