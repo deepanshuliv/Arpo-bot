@@ -305,39 +305,51 @@ export default function ChatPage() {
     removeImage();
     setLoading(true);
 
-    try {
-      const res = await sendMessage(
-        currentInput,
-        "user",
-        currentImage || undefined,
-      );
+    const res = await sendMessage({
+      message: text,
+      imageFile: image || undefined,
+      threadId: activeThreadId,
+      language: locale,
+    });
 
-      const agentMsg: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "agent",
-        content: res.data?.response || res.message || "No response received.",
-        sources: res.data?.sources,
-        timestamp: new Date(),
-      };
-
-      setMessages((prev) => [...prev, agentMsg]);
-
-      const limitRes = await getLimitStatus();
-      if (limitRes.success) setUsage(limitRes.data);
-    } catch (err: any) {
-
-      const errorMsg: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "agent",
-        content:
-          err?.message ||
-          "Failed to connect. You might have reached your limit.",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, errorMsg]);
-    } finally {
-      setLoading(false);
+    if (res.success && res.data) {
+      const { thread, response, sources } = res.data;
+      setActiveThreadId(thread._id);
+      setThreads((prev) => [
+        thread,
+        ...prev.filter((th) => th._id !== thread._id),
+      ]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `agent-${Date.now()}`,
+          role: "agent",
+          content: response,
+          sources,
+          timestamp: new Date(),
+        },
+      ]);
+    } else {
+      if (res.code === "UNAUTHORIZED") router.replace("/auth");
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `error-${Date.now()}`,
+          role: "agent",
+          content: "",
+          timestamp: new Date(),
+          error: { code: res.code ?? "SERVER_ERROR", refillIn: res.refillIn },
+        },
+      ]);
     }
+
+    setLoading(false);
+    refreshUsage();
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    ask(input);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
