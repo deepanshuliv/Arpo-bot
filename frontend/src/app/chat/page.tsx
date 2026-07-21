@@ -355,51 +355,170 @@ export default function ChatPage() {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSubmit(e);
+      ask(input);
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("arpo_token");
-    localStorage.removeItem("arpo_role");
-    localStorage.removeItem("arpo_name");
-    router.replace("/auth");
-  };
+  /* ───── Derived ───── */
 
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  };
+  const activeTitle =
+    threads.find((th) => th._id === activeThreadId)?.title ??
+    t("newConversationTitle");
+  const lastMessage = messages[messages.length - 1];
+  const showFollowUps =
+    !loading &&
+    lastMessage?.role === "agent" &&
+    !lastMessage.error &&
+    lastMessage.content;
+
+  const numericLimit = typeof usage?.limit === "number" ? usage.limit : null;
+  const remaining =
+    typeof usage?.remaining === "number" ? usage.remaining : null;
+
+  /* ───── Sidebar ───── */
+
+  const sidebar = (
+    <>
+      <button
+        type="button"
+        className={shellStyles.primaryAction}
+        onClick={startNewQuestion}
+        data-close-drawer
+      >
+        <NotePencil size={18} weight="bold" aria-hidden="true" />
+        {t("newQuestion")}
+      </button>
+
+      {isAdmin && (
+        <ul className={shellStyles.navList}>
+          <li>
+            <Link
+              href="/admin"
+              className={shellStyles.navItem}
+              data-close-drawer
+            >
+              <Books size={18} aria-hidden="true" />
+              {th("knowledgeBase")}
+            </Link>
+          </li>
+        </ul>
+      )}
+
+      <nav className={styles.history} aria-label={t("history")}>
+        {threads.length === 0 ? (
+          <p className={styles.noHistory}>{t("noHistory")}</p>
+        ) : (
+          groupedThreads.map(({ group, items }) => (
+            <div key={group}>
+              <p className={shellStyles.groupLabel}>{t(`groups.${group}`)}</p>
+              <ul className={shellStyles.navList}>
+                {items.map((thread) => (
+                  <li key={thread._id} className={styles.historyRow}>
+                    {confirmingDelete === thread._id ? (
+                      <div className={styles.confirmRow}>
+                        <span>{thread.title}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeThread(thread._id)}
+                        >
+                          {t("confirmDelete")}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setConfirmingDelete(null)}
+                        >
+                          {t("keep")}
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          className={shellStyles.navItem}
+                          aria-current={
+                            thread._id === activeThreadId ? "true" : undefined
+                          }
+                          onClick={() => openThread(thread._id)}
+                          data-close-drawer
+                        >
+                          <span className={styles.historyTitle}>
+                            {thread.title}
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.historyDelete}
+                          aria-label={t("deleteConversation")}
+                          title={t("deleteConversation")}
+                          onClick={() => setConfirmingDelete(thread._id)}
+                        >
+                          <Trash size={15} />
+                        </button>
+                      </>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        )}
+      </nav>
+
+      <div className={styles.usage}>
+        <p className={styles.usageTitle}>{t("usage.title")}</p>
+        {isAdmin || usage?.limit === "Unlimited" ? (
+          <p className={styles.usageNote}>{t("usage.unlimited")}</p>
+        ) : numericLimit && remaining !== null ? (
+          <>
+            <ol
+              className={styles.waypoints}
+              aria-label={t("usage.remaining", {
+                remaining,
+                limit: numericLimit,
+              })}
+            >
+              {Array.from({ length: numericLimit }, (_, i) => (
+                <li
+                  key={i}
+                  data-used={i < numericLimit - remaining || undefined}
+                />
+              ))}
+            </ol>
+            <p className={styles.usageNote}>
+              <strong>
+                {t("usage.remaining", { remaining, limit: numericLimit })}
+              </strong>
+              {usage?.resetTime && remaining < numericLimit
+                ? ` · ${t("usage.refillsAt", {
+                    time: format.dateTime(new Date(usage.resetTime), {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    }),
+                  })}`
+                : ` · ${t("usage.full")}`}
+            </p>
+          </>
+        ) : null}
+      </div>
+    </>
+  );
+
+  /* ───── Main ───── */
 
   return (
-    <div
-      className={styles.layout}
-      onDragEnter={handleDragEnter}
-      onDragLeave={handleDragLeave}
-      onDragOver={handleDragOver}
-      onDrop={handleDrop}
+    <AppShell
+      sidebar={sidebar}
+      title={activeTitle}
+      userName={userName}
+      signOutTo="/auth"
+      mainProps={dragHandlers}
     >
-      {}
       {isDragging && (
-        <div className={styles.dragOverlay}>
+        <div className={styles.dragOverlay} aria-hidden="true">
           <div className={styles.dragOverlayContent}>
-            <svg
-              width="56"
-              height="56"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-              <circle cx="9" cy="9" r="2" />
-              <path d="M21 15l-3.086-3.086a2 2 0 00-2.828 0L6 21" />
-            </svg>
-            <p className={styles.dragOverlayText}>Drop your image here</p>
-            <span className={styles.dragOverlaySub}>
-              PNG, JPG, GIF, WebP supported
-            </span>
+            <ImageSquare size={40} weight="light" />
+            <p>{t("drop.title")}</p>
+            <span>{t("drop.sub")}</span>
           </div>
         </div>
       )}
