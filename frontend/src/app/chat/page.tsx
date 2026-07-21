@@ -141,59 +141,103 @@ export default function ChatPage() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const dragCounterRef = useRef(0);
 
+  const refreshUsage = useCallback(() => {
+    getLimitStatus().then((res) => {
+      if (res.success && res.data) setUsage(res.data);
+    });
+  }, []);
+
+  const token = session?.token;
+
   useEffect(() => {
-    const token = localStorage.getItem("arpo_token");
-    if (!token) {
-      router.replace("/auth");
-      return;
-    }
-    const role = localStorage.getItem("arpo_role");
-    setIsAdmin(role === "admin");
+    if (session === null) router.replace("/auth");
+  }, [session, router]);
 
-    async function loadChatHistory() {
-      try {
-        const res = await getMessages();
-        if (res.success && res.data?.messages?.length > 0) {
-          const history: Message[] = res.data.messages.map(
-            (m: {
-              _id: string;
-              role: string;
-              message_description: string;
-              createdAt: string;
-            }) => ({
-              id: m._id,
-              role: m.role as "user" | "agent",
-              content: m.message_description || "",
-              timestamp: new Date(m.createdAt),
-            }),
-          );
-          setMessages(history);
-        }
-      } catch (err) {
-        console.error("Failed to load chat history:", err);
-      } finally {
-        setLoadingHistory(false);
-      }
-    }
-
-    async function loadLimit() {
-      try {
-        const res = await getLimitStatus();
-        if (res.success) {
-          setUsage(res.data);
-        }
-      } catch (err) {
-        console.error("Failed to load limit status:", err);
-      }
-    }
-
-    loadChatHistory();
-    loadLimit();
-  }, [router]);
+  useEffect(() => {
+    if (!token) return;
+    getThreads().then((res) => {
+      if (res.code === "UNAUTHORIZED") router.replace("/auth");
+      if (res.success && res.data) setThreads(res.data.threads);
+    });
+    getLimitStatus().then((res) => {
+      if (res.success && res.data) setUsage(res.data);
+    });
+  }, [token, router]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, loading]);
+
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    textarea.style.height = "auto";
+    textarea.style.height = `${Math.min(textarea.scrollHeight, 180)}px`;
+  }, [input]);
+
+  /* ───── Conversations ───── */
+
+  const startNewQuestion = () => {
+    setActiveThreadId(null);
+    setMessages([]);
+    setOpenSources(null);
+    textareaRef.current?.focus();
+  };
+
+  const openThread = async (threadId: string) => {
+    if (threadId === activeThreadId) return;
+    setActiveThreadId(threadId);
+    setMessages([]);
+    setOpenSources(null);
+    setLoadingThread(true);
+
+    const res = await getThreadMessages(threadId);
+    setLoadingThread(false);
+    if (!res.success || !res.data) {
+      setMessages([
+        {
+          id: "error",
+          role: "agent",
+          content: "",
+          timestamp: new Date(),
+          error: { code: res.code ?? "SERVER_ERROR" },
+        },
+      ]);
+      return;
+    }
+
+    setMessages(
+      res.data.messages.map((m) => ({
+        id: m._id,
+        role: m.role,
+        content: m.message_description || "",
+        sources: m.sources,
+        timestamp: new Date(m.createdAt),
+      })),
+    );
+  };
+
+  const removeThread = async (threadId: string) => {
+    setConfirmingDelete(null);
+    const res = await deleteThread(threadId);
+    if (!res.success) return;
+    setThreads((prev) => prev.filter((th) => th._id !== threadId));
+    if (threadId === activeThreadId) startNewQuestion();
+  };
+
+  const groupedThreads = useMemo(() => {
+    const order: HistoryGroup[] = ["today", "yesterday", "week", "earlier"];
+    const groups = new Map<HistoryGroup, ThreadSummary[]>();
+    for (const thread of threads) {
+      const g = groupOf(new Date(thread.updatedAt));
+      groups.set(g, [...(groups.get(g) ?? []), thread]);
+    }
+    return order
+      .filter((g) => groups.has(g))
+      .map((g) => ({ group: g, items: groups.get(g)! }));
+  }, [threads]);
+
+  /* ───── Images ───── */
 
   const handleFile = useCallback((file: File) => {
     if (!file.type.startsWith("image/")) return;
