@@ -282,37 +282,25 @@ export default function ChatPage() {
         }
       }
     },
-    [handleFile],
-  );
-
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      handleFile(file);
-    }
   };
 
-  const removeImage = () => {
-    setImageFile(null);
-    setImagePreview(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
+  /* ───── Asking ───── */
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() && !imageFile) return;
+  const ask = async (question: string) => {
+    const text = question.trim();
+    if ((!text && !imageFile) || loading) return;
 
-    const userMsg: Message = {
-      id: Date.now().toString(),
-      role: "user",
-      content: input.trim(),
-      imagePreview: imagePreview || undefined,
-      timestamp: new Date(),
-    };
-
-    setMessages((prev) => [...prev, userMsg]);
-    const currentInput = input;
-    const currentImage = imageFile;
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: `local-${Date.now()}`,
+        role: "user",
+        content: text,
+        imagePreview: imagePreview || undefined,
+        timestamp: new Date(),
+      },
+    ]);
+    const image = imageFile;
     setInput("");
     removeImage();
     setLoading(true);
