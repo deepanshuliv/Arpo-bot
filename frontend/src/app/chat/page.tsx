@@ -247,52 +247,33 @@ export default function ChatPage() {
     reader.readAsDataURL(file);
   }, []);
 
-  const handleDragEnter = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    dragCounterRef.current += 1;
-    if (e.dataTransfer.types.includes("Files")) {
-      setIsDragging(true);
-    }
-  }, []);
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    dragCounterRef.current -= 1;
-    if (dragCounterRef.current === 0) {
-      setIsDragging(false);
-    }
-  }, []);
-
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-  }, []);
-
-  const handleDrop = useCallback(
-    (e: React.DragEvent) => {
+  const dragHandlers = {
+    onDragEnter: (e: React.DragEvent) => {
       e.preventDefault();
-      e.stopPropagation();
+      dragCounterRef.current += 1;
+      if (e.dataTransfer.types.includes("Files")) setIsDragging(true);
+    },
+    onDragLeave: (e: React.DragEvent) => {
+      e.preventDefault();
+      dragCounterRef.current -= 1;
+      if (dragCounterRef.current === 0) setIsDragging(false);
+    },
+    onDragOver: (e: React.DragEvent) => e.preventDefault(),
+    onDrop: (e: React.DragEvent) => {
+      e.preventDefault();
       dragCounterRef.current = 0;
       setIsDragging(false);
-
-      const files = e.dataTransfer.files;
-      if (files && files.length > 0) {
-        const file = files[0];
-        if (file.type.startsWith("image/")) {
-          handleFile(file);
-        }
-      }
+      const file = e.dataTransfer.files?.[0];
+      if (file) handleFile(file);
     },
-    [handleFile],
-  );
-
-  const handlePaste = useCallback(
-    (e: React.ClipboardEvent) => {
-      const items = e.clipboardData?.items;
-      if (!items) return;
-      for (const item of items) {
+    onPaste: (e: React.ClipboardEvent) => {
+      for (const item of e.clipboardData?.items ?? []) {
         if (item.type.startsWith("image/")) {
           e.preventDefault();
           const file = item.getAsFile();
