@@ -127,11 +127,15 @@ export default function ChatPage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [loadingHistory, setLoadingHistory] = useState(true);
-  const [showSources, setShowSources] = useState<string | null>(null);
+  const [loadingThread, setLoadingThread] = useState(false);
+  const [openSources, setOpenSources] = useState<string | null>(null);
+  const [confirmingDelete, setConfirmingDelete] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [usage, setUsage] = useState<any>({ remaining: 5, limit: 5 });
+  const session = useSession();
+  const isAdmin = isStaffRole(session?.role);
+  const userName = session?.name ?? "";
+  const [usage, setUsage] = useState<LimitStatus | null>(null);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
