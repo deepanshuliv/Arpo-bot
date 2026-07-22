@@ -501,126 +501,45 @@
   }
 }
 
-/* ───── Error ───── */
-.errorBanner {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
-  background: rgba(255, 68, 68, 0.08);
-  border: 1px solid rgba(255, 68, 68, 0.2);
-  border-radius: 12px;
-  color: var(--danger);
-  font-size: 13px;
-  animation: fadeIn 0.25s ease-out;
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
 }
 
-/* ───── History ───── */
-.historySection {
-  border-top: 1px solid var(--border);
-  padding-top: 20px;
+@media (max-width: 1000px) {
+  .content {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+
+  .dropZone {
+    min-height: 240px;
+  }
+
+  .library {
+    min-height: 320px;
+  }
 }
 
-.historyTitle {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  margin-bottom: 12px;
-}
+@media (max-width: 560px) {
+  .actions {
+    flex-direction: column-reverse;
+  }
 
-.historyList {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+  .uploadBtn,
+  .actions :global(.btn-secondary) {
+    width: 100%;
+  }
 
-.historyCard {
-  padding: 14px 16px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  animation: fadeIn 0.3s ease-out;
-}
+  .fileSize {
+    display: none;
+  }
 
-.historyHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.historyTime {
-  font-size: 11px;
-  color: var(--text-muted);
-}
-
-.historyChunks {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--accent);
-  background: var(--accent-dim);
-  padding: 3px 8px;
-  border-radius: 6px;
-}
-
-.historyFiles {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.historyFile {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-}
-
-.historyDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.dotSuccess {
-  background: var(--success);
-}
-
-.dotFailed {
-  background: var(--danger);
-}
-
-.historyFileName {
-  color: var(--text-primary);
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.historyFileMeta {
-  color: var(--text-muted);
-  white-space: nowrap;
-}
-
-/* ───── Back Button ───── */
-.backBtn {
-  padding: 10px 16px;
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  color: var(--text-muted);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-family: inherit;
-  text-align: center;
-}
-
-.backBtn:hover {
-  color: var(--text-primary);
-  border-color: var(--border-light);
-  background: var(--bg-secondary);
+  .fileItem {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
 }
