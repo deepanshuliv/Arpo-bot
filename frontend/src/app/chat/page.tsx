@@ -523,465 +523,267 @@ export default function ChatPage() {
         </div>
       )}
 
-      {}
-      <aside className={styles.sidebar}>
-        <div className={styles.sidebarHeader}>
-          <div className={styles.logoRow}>
-            <div className={styles.logoIcon}>
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                <path d="M2 17l10 5 10-5" />
-                <path d="M2 12l10 5 10-5" />
-              </svg>
-            </div>
-            <span className={styles.logoTitle}>ARPO</span>
+      <div className={styles.scroll}>
+        {loadingThread ? (
+          <div
+            className={styles.skeletonList}
+            aria-busy="true"
+            aria-label={t("loadingHistory")}
+          >
+            <span className={`${styles.skeleton} ${styles.skeletonUser}`} />
+            <span className={`${styles.skeleton} ${styles.skeletonCard}`} />
           </div>
-        </div>
+        ) : messages.length === 0 ? (
+          <div className={styles.emptyState}>
+            <p className="eyebrow">
+              {userName
+                ? t("empty.greeting", { name: userName.split(" ")[0] })
+                : t("empty.greetingAnon")}
+            </p>
+            <h2 className={styles.emptyTitle}>{t("empty.title")}</h2>
+            <p className={styles.emptyDesc}>{t("empty.desc")}</p>
+            <ul className={styles.suggestions}>
+              {(
+                [
+                  ["badge", Medal],
+                  ["knot", Lasso],
+                  ["firstAid", FirstAidKit],
+                ] as const
+              ).map(([key, Icon]) => (
+                <li key={key}>
+                  <button
+                    type="button"
+                    className={styles.suggestion}
+                    onClick={() => ask(t(`empty.suggestions.${key}`))}
+                  >
+                    <span className={styles.suggestionIcon}>
+                      <Icon size={18} weight="duotone" aria-hidden="true" />
+                    </span>
+                    <span>{t(`empty.suggestions.${key}`)}</span>
+                    <ArrowUpRight
+                      size={16}
+                      className={styles.suggestionArrow}
+                      aria-hidden="true"
+                    />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : (
+          <div className={styles.thread} aria-live="polite">
+            {messages.map((msg) =>
+              msg.role === "user" ? (
+                <div key={msg.id} className={styles.question}>
+                  {msg.imagePreview && (
+                    <Image
+                      src={msg.imagePreview}
+                      alt={t("message.imageAlt")}
+                      width={260}
+                      height={180}
+                      unoptimized
+                      className={styles.questionImage}
+                    />
+                  )}
+                  {msg.content && <p>{msg.content}</p>}
+                  <time className={styles.questionTime}>
+                    {format.dateTime(msg.timestamp, {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </time>
+                </div>
+              ) : msg.error ? (
+                <div key={msg.id} className={styles.errorCard} role="alert">
+                  <WarningCircle size={20} weight="fill" aria-hidden="true" />
+                  <p>
+                    {t(`errors.${chatErrorKey(msg.error.code)}`, {
+                      minutes: msg.error.refillIn ?? 60,
+                    })}
+                  </p>
+                </div>
+              ) : (
+                <article key={msg.id} className={styles.answer}>
+                  <header className={styles.answerHead}>
+                    <Logo size={24} />
+                    <b>{t("message.arpo")}</b>
+                    {msg.sources && msg.sources.length > 0 && (
+                      <span>
+                        {t("message.fromPassages", {
+                          count: msg.sources.length,
+                        })}
+                      </span>
+                    )}
+                    <time>
+                      {format.dateTime(msg.timestamp, {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </time>
+                  </header>
 
-        <button className={styles.newChatBtn} onClick={() => setMessages([])}>
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-          New Chat
-        </button>
+                  <AnswerText text={msg.content} />
 
-        {isAdmin && (
-          <button
-            className={styles.newChatBtn}
-            onClick={() => router.push("/admin")}
-            style={{ marginTop: "6px" }}
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M12.22 2h-.44a2 2 0 00-2 2v.18a2 2 0 01-1 1.73l-.43.25a2 2 0 01-2 0l-.15-.08a2 2 0 00-2.73.73l-.22.38a2 2 0 00.73 2.73l.15.1a2 2 0 011 1.72v.51a2 2 0 01-1 1.74l-.15.09a2 2 0 00-.73 2.73l.22.38a2 2 0 002.73.73l.15-.08a2 2 0 012 0l.43.25a2 2 0 011 1.73V20a2 2 0 002 2h.44a2 2 0 002-2v-.18a2 2 0 011-1.73l.43-.25a2 2 0 012 0l.15.08a2 2 0 002.73-.73l.22-.39a2 2 0 00-.73-2.73l-.15-.08a2 2 0 01-1-1.74v-.5a2 2 0 011-1.74l.15-.09a2 2 0 00.73-2.73l-.22-.38a2 2 0 00-2.73-.73l-.15.08a2 2 0 01-2 0l-.43-.25a2 2 0 01-1-1.73V4a2 2 0 00-2-2z" />
-              <circle cx="12" cy="12" r="3" />
-            </svg>
-            Admin Panel
-          </button>
+                  {msg.sources && msg.sources.length > 0 && (
+                    <footer className={styles.stamps}>
+                      {groupSources(msg.sources).map((src) => {
+                        const key = `${msg.id}:${src.file}`;
+                        const open = openSources === key;
+                        return (
+                          <div key={key} className={styles.stampWrap}>
+                            <button
+                              type="button"
+                              className={styles.stamp}
+                              aria-expanded={open}
+                              onClick={() => setOpenSources(open ? null : key)}
+                            >
+                              <BookOpenText size={14} aria-hidden="true" />
+                              <span className={styles.stampFile}>
+                                {readableFile(src.file)}
+                              </span>
+                              {src.pages.length > 0 && (
+                                <span className={styles.stampPages}>
+                                  {t("message.page", {
+                                    page: src.pages.slice(0, 3).join(", "),
+                                  })}
+                                </span>
+                              )}
+                            </button>
+                            {open && (
+                              <ol
+                                className={styles.passages}
+                                aria-label={t("message.passages")}
+                              >
+                                {src.passages.slice(0, 4).map((p, i) => (
+                                  <li key={i}>
+                                    <span className={styles.passageMeta}>
+                                      {p.pageNumber != null &&
+                                        t("message.page", {
+                                          page: p.pageNumber,
+                                        })}
+                                      {" · "}
+                                      {t("message.match", {
+                                        score: Math.round(
+                                          parseFloat(p.confidenceScore) * 100,
+                                        ),
+                                      })}
+                                    </span>
+                                    <p>
+                                      {p.content.slice(0, 280)}
+                                      {p.content.length > 280 ? "…" : ""}
+                                    </p>
+                                  </li>
+                                ))}
+                              </ol>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </footer>
+                  )}
+                </article>
+              ),
+            )}
+
+            {loading && (
+              <div className={styles.thinking} aria-label={t("loading")}>
+                <Logo size={24} />
+                <span>{t("loading")}</span>
+                <span className={styles.dots}>
+                  <i />
+                  <i />
+                  <i />
+                </span>
+              </div>
+            )}
+
+            <div ref={messagesEndRef} />
+          </div>
+        )}
+      </div>
+
+      <div className={styles.composerArea}>
+        {showFollowUps && (
+          <div className={styles.followUps}>
+            {(["checklist", "simpler", "more"] as const).map((key) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => ask(t(`followUps.${key}`))}
+              >
+                {t(`followUps.${key}`)}
+              </button>
+            ))}
+          </div>
         )}
 
-        {}
-        <div className={styles.usageTracker}>
-          <div className={styles.usageHeader}>
-            <span className={styles.usageTitle}>Monthly Usage</span>
-            <span className={styles.usageValues}>
-              {usage.remaining === "Unlimited" ? "∞" : usage.remaining} /{" "}
-              {usage.limit === "Unlimited" ? "∞" : usage.limit}
-            </span>
-          </div>
-          <div className={styles.usageBarBg}>
-            <div
-              className={styles.usageBarFill}
-              style={{
-                width:
-                  usage.limit === "Unlimited"
-                    ? "100%"
-                    : `${(Math.max(0, parseInt(usage.remaining || "0")) / 5) * 100}%`,
-              }}
+        {imagePreview && (
+          <div className={styles.imagePreviewBar}>
+            <Image
+              src={imagePreview}
+              alt=""
+              width={40}
+              height={40}
+              unoptimized
+              className={styles.previewThumb}
             />
-          </div>
-          <p className={styles.usageNote}>
-            {isAdmin
-              ? "Admin Account: Unlimited access"
-              : `Your limits refill every hour`}
-          </p>
-        </div>
-
-        <div className={styles.sidebarFooter}>
-          <button className={styles.logoutBtn} onClick={handleLogout}>
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
-              <polyline points="16 17 21 12 16 7" />
-              <line x1="21" y1="12" x2="9" y2="12" />
-            </svg>
-            Sign Out
-          </button>
-        </div>
-      </aside>
-
-      {}
-      <main className={styles.main} onPaste={handlePaste}>
-        {}
-        <div className={styles.messagesContainer}>
-          {loadingHistory ? (
-            <div className={styles.emptyState}>
-              <div className={styles.emptyIcon} style={{ opacity: 0.5 }}>
-                <svg
-                  width="32"
-                  height="32"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  style={{ animation: "spin 1s linear infinite" }}
-                >
-                  <path d="M21 12a9 9 0 11-6.219-8.56" />
-                </svg>
-              </div>
-              <p className={styles.emptyDesc}>Loading chat history...</p>
-            </div>
-          ) : messages.length === 0 ? (
-            <div className={styles.emptyState}>
-              <div className={styles.emptyIcon}>
-                <svg
-                  width="48"
-                  height="48"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                  <path d="M2 17l10 5 10-5" />
-                  <path d="M2 12l10 5 10-5" />
-                </svg>
-              </div>
-              <h2 className={styles.emptyTitle}>Scout Master AI</h2>
-              <p className={styles.emptyDesc}>
-                Ask me anything about scouting, or drag &amp; drop an image for
-                analysis.
-              </p>
-              <div className={styles.suggestions}>
-                {[
-                  "What are the requirements for the Eagle Scout badge?",
-                  "Explain camping safety principles",
-                  "What knots should every scout know?",
-                ].map((s, i) => (
-                  <button
-                    key={i}
-                    className={styles.suggestion}
-                    onClick={() => setInput(s)}
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className={styles.messagesList}>
-              {messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`${styles.message} ${
-                    msg.role === "user" ? styles.userMsg : styles.agentMsg
-                  }`}
-                >
-                  <div className={styles.messageAvatar}>
-                    {msg.role === "user" ? (
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-                        <circle cx="12" cy="7" r="4" />
-                      </svg>
-                    ) : (
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                        <path d="M2 17l10 5 10-5" />
-                        <path d="M2 12l10 5 10-5" />
-                      </svg>
-                    )}
-                  </div>
-                  <div className={styles.messageBody}>
-                    <div className={styles.messageHeader}>
-                      <span className={styles.messageSender}>
-                        {msg.role === "user" ? "You" : "ARPO"}
-                      </span>
-                      <span className={styles.messageTime}>
-                        {formatTime(msg.timestamp)}
-                      </span>
-                    </div>
-                    {msg.imagePreview && (
-                      <img
-                        src={msg.imagePreview}
-                        alt="Uploaded"
-                        className={styles.messageImage}
-                      />
-                    )}
-                    <p className={styles.messageText}>{msg.content}</p>
-
-                    {}
-                    {msg.sources && msg.sources.length > 0 && (
-                      <div className={styles.sourcesSection}>
-                        <button
-                          className={styles.sourcesToggle}
-                          onClick={() =>
-                            setShowSources(
-                              showSources === msg.id ? null : msg.id,
-                            )
-                          }
-                        >
-                          <svg
-                            width="14"
-                            height="14"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
-                            <path d="M14 2H6a2 2 0 00-2 2v16c0 1.1.9 2 2 2h12a2 2 0 002-2V8l-6-6z" />
-                            <path d="M14 2v6h6" />
-                          </svg>
-                          {msg.sources.length} source
-                          {msg.sources.length > 1 ? "s" : ""} referenced
-                          <svg
-                            width="12"
-                            height="12"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            style={{
-                              transform:
-                                showSources === msg.id
-                                  ? "rotate(180deg)"
-                                  : "rotate(0)",
-                              transition: "transform 0.2s",
-                            }}
-                          >
-                            <polyline points="6 9 12 15 18 9" />
-                          </svg>
-                        </button>
-
-                        {showSources === msg.id && (
-                          <div className={styles.sourcesList}>
-                            {msg.sources.map((source, i) => (
-                              <div key={i} className={styles.sourceCard}>
-                                <div className={styles.sourceHeader}>
-                                  <div className={styles.sourceFileInfo}>
-                                    <svg
-                                      width="12"
-                                      height="12"
-                                      viewBox="0 0 24 24"
-                                      fill="none"
-                                      stroke="currentColor"
-                                      strokeWidth="2"
-                                    >
-                                      <path d="M14.5 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V7.5L14.5 2z" />
-                                      <polyline points="14 2 14 8 20 8" />
-                                    </svg>
-                                    <span className={styles.sourceFileName}>
-                                      {source.sourceFile || `Document ${i + 1}`}
-                                    </span>
-                                    {source.pageNumber && (
-                                      <span className={styles.sourcePageBadge}>
-                                        Page {source.pageNumber}
-                                      </span>
-                                    )}
-                                  </div>
-                                  <span
-                                    className={styles.sourceScore}
-                                    style={{
-                                      color:
-                                        parseFloat(source.confidenceScore) > 0.7
-                                          ? "var(--success)"
-                                          : "var(--text-muted)",
-                                    }}
-                                  >
-                                    {(
-                                      parseFloat(source.confidenceScore) * 100
-                                    ).toFixed(0)}
-                                    % match
-                                  </span>
-                                </div>
-                                <p className={styles.sourceContent}>
-                                  {source.content.slice(0, 300)}
-                                  {source.content.length > 300 ? "..." : ""}
-                                </p>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-
-              {/* Typing indicator */}
-              {loading && (
-                <div className={`${styles.message} ${styles.agentMsg}`}>
-                  <div className={styles.messageAvatar}>
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                      <path d="M2 17l10 5 10-5" />
-                      <path d="M2 12l10 5 10-5" />
-                    </svg>
-                  </div>
-                  <div className={styles.messageBody}>
-                    <div className={styles.typingIndicator}>
-                      <span />
-                      <span />
-                      <span />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div ref={messagesEndRef} />
-            </div>
-          )}
-        </div>
-
-        {}
-        <div className={styles.inputArea}>
-          {imagePreview && (
-            <div className={styles.imagePreviewBar}>
-              <img
-                src={imagePreview}
-                alt="Preview"
-                className={styles.previewThumb}
-              />
-              <span className={styles.previewName}>{imageFile?.name}</span>
-              <button className={styles.removeImage} onClick={removeImage}>
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              </button>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className={styles.inputForm}>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleImageSelect}
-              hidden
-            />
-
+            <span className={styles.previewName}>{imageFile?.name}</span>
             <button
               type="button"
-              className={styles.attachBtn}
-              onClick={() => fileInputRef.current?.click()}
-              title="Upload image"
+              className={styles.removeImage}
+              onClick={removeImage}
+              aria-label={t("composer.removeImage")}
             >
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                <circle cx="9" cy="9" r="2" />
-                <path d="M21 15l-3.086-3.086a2 2 0 00-2.828 0L6 21" />
-              </svg>
+              <X size={14} weight="bold" />
             </button>
+          </div>
+        )}
 
-            <textarea
-              ref={textareaRef}
-              className={styles.textInput}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask ARPO anything... (or drop an image)"
-              rows={1}
-              disabled={loading}
-            />
-
-            <button
-              type="submit"
-              className={styles.sendBtn}
-              disabled={loading || (!input.trim() && !imageFile)}
-            >
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="22" y1="2" x2="11" y2="13" />
-                <polygon points="22 2 15 22 11 13 2 9 22 2" />
-              </svg>
-            </button>
-          </form>
-        </div>
-      </main>
-    </div>
+        <form onSubmit={handleSubmit} className={styles.composer}>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={(e) =>
+              e.target.files?.[0] && handleFile(e.target.files[0])
+            }
+            hidden
+          />
+          <button
+            type="button"
+            className={styles.attachBtn}
+            onClick={() => fileInputRef.current?.click()}
+            aria-label={t("composer.attach")}
+            title={t("composer.attach")}
+          >
+            <Paperclip size={19} />
+          </button>
+          <textarea
+            ref={textareaRef}
+            className={styles.textInput}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={
+              messages.length > 0
+                ? t("composer.followUp")
+                : t("composer.placeholder")
+            }
+            aria-label={t("composer.label")}
+            rows={1}
+            disabled={loading}
+          />
+          <button
+            type="submit"
+            className={styles.sendBtn}
+            disabled={loading || (!input.trim() && !imageFile)}
+            aria-label={t("composer.send")}
+          >
+            <ArrowUp size={17} weight="bold" />
+          </button>
+        </form>
+        <p className={styles.hint}>{t("composer.hint")}</p>
+      </div>
+    </AppShell>
   );
 }
