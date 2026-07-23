@@ -103,124 +103,94 @@ export default function AdminPage() {
         f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf"),
     );
     if (pdfs.length === 0) {
-      setError("Only PDF files are supported");
-      setTimeout(() => setError(null), 3000);
+      setError("notPdf");
       return;
     }
+    const valid = pdfs.filter((f) => f.size <= MAX_FILE_SIZE);
+    setError(valid.length < pdfs.length ? "tooLarge" : null);
     setSelectedFiles((prev) => {
       const existing = new Set(prev.map((f) => f.name + f.size));
-      const unique = pdfs.filter((f) => !existing.has(f.name + f.size));
-      return [...prev, ...unique];
+      return [...prev, ...valid.filter((f) => !existing.has(f.name + f.size))];
     });
-    setError(null);
   }, []);
 
-  const handleDrop = useCallback(
-    (e: React.DragEvent) => {
+  const dragHandlers = {
+    onDragEnter: (e: React.DragEvent) => {
       e.preventDefault();
-      e.stopPropagation();
+      dragCounterRef.current += 1;
+      if (e.dataTransfer.types.includes("Files")) setIsDragging(true);
+    },
+    onDragLeave: (e: React.DragEvent) => {
+      e.preventDefault();
+      dragCounterRef.current -= 1;
+      if (dragCounterRef.current === 0) setIsDragging(false);
+    },
+    onDragOver: (e: React.DragEvent) => e.preventDefault(),
+    onDrop: (e: React.DragEvent) => {
+      e.preventDefault();
       dragCounterRef.current = 0;
       setIsDragging(false);
-
-      const files = Array.from(e.dataTransfer.files);
-      addFiles(files);
+      addFiles(Array.from(e.dataTransfer.files));
     },
-    [addFiles],
-  );
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files) {
-      addFiles(Array.from(files));
-    }
-
-    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const removeFile = (index: number) => {
-    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
-  };
+  const openPicker = () => fileInputRef.current?.click();
 
-  const clearFiles = () => {
-    setSelectedFiles([]);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
+  /* ───── Upload & delete ───── */
 
   const handleUpload = async () => {
     if (selectedFiles.length === 0) return;
-
     setUploading(true);
-    setUploadProgress(`Processing ${selectedFiles.length} file(s)...`);
     setError(null);
 
-    try {
-      const res = await uploadPdfs(selectedFiles);
-      if (res.success && res.data) {
-        setHistory((prev) => [
-          {
-            id: Date.now().toString(),
-            files: res.data!.files,
-            totalChunks: res.data!.totalChunks,
-            timestamp: new Date(),
-          },
-          ...prev,
-        ]);
-        setSelectedFiles([]);
-        setUploadProgress(null);
-      } else {
-        setError(res.message || "Upload failed");
-        setUploadProgress(null);
-      }
-    } catch {
-      setError("Network error — could not reach the server");
-      setUploadProgress(null);
-    } finally {
-      setUploading(false);
+    const res = await uploadPdfs(selectedFiles);
+    setUploading(false);
+
+    if (res.success && res.data) {
+      setLastUpload(res.data);
+      setSelectedFiles([]);
+      loadDocuments();
+    } else {
+      setError(res.code === "NETWORK" ? "network" : "uploadFailed");
     }
   };
 
-  const formatFileSize = (bytes: number) => {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+  const handleDelete = async (fileName: string) => {
+    setConfirming(null);
+    setDeleting(fileName);
+    const res = await deleteDocument(fileName);
+    setDeleting(null);
+    if (res.success) {
+      loadDocuments();
+    } else {
+      setError(res.code === "NETWORK" ? "network" : "deleteFailed");
+    }
   };
 
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  };
+  const justAdded = new Set(
+    lastUpload?.files
+      .filter((f) => f.status === "success")
+      .map((f) => f.fileName) ?? [],
+  );
+
+  /* ───── Sidebar ───── */
+
+  const sidebar = <AdminNav />;
 
   return (
-    <div
-      className={styles.page}
-      onDragEnter={handleDragEnter}
-      onDragLeave={handleDragLeave}
-      onDragOver={handleDragOver}
-      onDrop={handleDrop}
+    <AppShell
+      sidebar={sidebar}
+      title={t("title")}
+      userName={userName}
+      signOutTo="/admin/auth"
+      mainProps={dragHandlers}
     >
-      {}
       {isDragging && (
-        <div className={styles.dragOverlay}>
+        <div className={styles.dragOverlay} aria-hidden="true">
           <div className={styles.dragOverlayContent}>
-            <svg
-              width="56"
-              height="56"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M14.5 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V7.5L14.5 2z" />
-              <polyline points="14 2 14 8 20 8" />
-              <line x1="12" y1="18" x2="12" y2="12" />
-              <line x1="9" y1="15" x2="12" y2="12" />
-              <line x1="15" y1="15" x2="12" y2="12" />
-            </svg>
-            <p className={styles.dragOverlayText}>Drop your PDFs here</p>
-            <span className={styles.dragOverlaySub}>
-              Multiple files supported
-            </span>
+            <FilePdf size={40} weight="light" />
+            <p>{t("dropOverlay")}</p>
+            <span>{t("dropOverlaySub")}</span>
           </div>
         </div>
       )}
