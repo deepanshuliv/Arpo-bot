@@ -1,62 +1,101 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { uploadPdfs, type PdfUploadResult } from "@/lib/api";
+import { useFormatter, useTranslations } from "next-intl";
+import {
+  Check,
+  FilePdf,
+  Plus,
+  Trash,
+  UploadSimple,
+  Warning,
+  X,
+} from "@phosphor-icons/react";
+import AppShell from "@/components/AppShell";
+import AdminNav from "@/components/AdminNav";
+import {
+  deleteDocument,
+  getDocuments,
+  isStaffRole,
+  uploadPdfs,
+  type IndexedDocument,
+  type PdfUploadResult,
+} from "@/lib/api";
+import { useSession } from "@/lib/session";
 import styles from "./admin.module.css";
 
-interface UploadHistoryEntry {
-  id: string;
-  files: PdfUploadResult["files"];
-  totalChunks: number;
-  timestamp: Date;
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
+type ErrorKey =
+  | "notPdf"
+  | "tooLarge"
+  | "uploadFailed"
+  | "listFailed"
+  | "deleteFailed"
+  | "network";
+
+function readableFile(name: string) {
+  return name
+    .replace(/\.pdf$/i, "")
+    .replace(/[_-]+/g, " ")
+    .trim();
+}
+
+function formatFileSize(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 export default function AdminPage() {
+  const t = useTranslations("admin");
+  const format = useFormatter();
   const router = useRouter();
+
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState<string | null>(null);
-  const [history, setHistory] = useState<UploadHistoryEntry[]>([]);
+  const [lastUpload, setLastUpload] = useState<PdfUploadResult | null>(null);
+  const [documents, setDocuments] = useState<IndexedDocument[] | null>(null);
+  const [totalPassages, setTotalPassages] = useState(0);
+  const [confirming, setConfirming] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<ErrorKey | null>(null);
+  const session = useSession();
+  const userName = session?.name ?? "";
+  const isAdminSession = isStaffRole(session?.role);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dragCounterRef = useRef(0);
 
+  const applyDocuments = useCallback(
+    (res: Awaited<ReturnType<typeof getDocuments>>) => {
+      if (res.success && res.data) {
+        setDocuments(res.data.documents);
+        setTotalPassages(res.data.totalPassages);
+      } else {
+        if (res.code === "UNAUTHORIZED") router.replace("/admin/auth");
+        setDocuments([]);
+        setError(res.code === "NETWORK" ? "network" : "listFailed");
+      }
+    },
+    [router],
+  );
+
+  const loadDocuments = useCallback(() => {
+    getDocuments().then(applyDocuments);
+  }, [applyDocuments]);
+
   useEffect(() => {
-    const token = localStorage.getItem("arpo_token");
-    if (!token) {
+    if (session === undefined) return;
+    if (!isAdminSession) {
       router.replace("/admin/auth");
       return;
     }
-    const role = localStorage.getItem("arpo_role");
-    if (role !== "admin") {
-      router.replace("/admin/auth");
-    }
-  }, [router]);
+    getDocuments().then(applyDocuments);
+  }, [session, isAdminSession, router, applyDocuments]);
 
-  const handleDragEnter = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    dragCounterRef.current += 1;
-    if (e.dataTransfer.types.includes("Files")) {
-      setIsDragging(true);
-    }
-  }, []);
-
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    dragCounterRef.current -= 1;
-    if (dragCounterRef.current === 0) {
-      setIsDragging(false);
-    }
-  }, []);
-
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-  }, []);
+  /* ───── Choosing files ───── */
 
   const addFiles = useCallback((newFiles: File[]) => {
     const pdfs = newFiles.filter(
