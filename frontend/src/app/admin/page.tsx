@@ -195,36 +195,15 @@ export default function AdminPage() {
         </div>
       )}
 
-      <div className={styles.container}>
-        {}
-        <div className={styles.header}>
-          <div className={styles.headerIcon}>
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M14.5 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V7.5L14.5 2z" />
-              <polyline points="14 2 14 8 20 8" />
-            </svg>
-          </div>
-          <h1 className={styles.title}>Knowledge Base Admin</h1>
-          <p className={styles.subtitle}>
-            Upload manuals, guides, or rulebooks to the Pinecone vector
-            database. Drag &amp; drop or click to add PDFs.
-          </p>
-        </div>
+      <div className={styles.content}>
+        <section className={styles.workArea} aria-labelledby="upload-title">
+          <header>
+            <h2 id="upload-title" className={styles.heading}>
+              {t("title")}
+            </h2>
+            <p className={styles.subtitle}>{t("subtitle")}</p>
+          </header>
 
-        {}
-        <div
-          className={`${styles.dropZone} ${selectedFiles.length > 0 ? styles.dropZoneActive : ""}`}
-          onClick={() => fileInputRef.current?.click()}
-        >
           <input
             ref={fileInputRef}
             type="file"
