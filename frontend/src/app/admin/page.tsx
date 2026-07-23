@@ -209,212 +209,234 @@ export default function AdminPage() {
             type="file"
             accept=".pdf"
             multiple
-            onChange={handleFileSelect}
             hidden
+            onChange={(e) => {
+              if (e.target.files) addFiles(Array.from(e.target.files));
+              e.target.value = "";
+            }}
           />
 
-          {selectedFiles.length === 0 ? (
-            <div className={styles.dropZoneEmpty}>
-              <svg
-                width="32"
-                height="32"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+          <div
+            className={`${styles.dropZone} ${selectedFiles.length > 0 ? styles.dropZoneActive : ""}`}
+          >
+            {selectedFiles.length === 0 ? (
+              <button
+                type="button"
+                className={styles.dropZoneEmpty}
+                onClick={openPicker}
               >
-                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-                <polyline points="17 8 12 3 7 8" />
-                <line x1="12" y1="3" x2="12" y2="15" />
-              </svg>
-              <p className={styles.dropZoneTitle}>
-                Drag &amp; drop PDF files here
-              </p>
-              <span className={styles.dropZoneSub}>
-                or click to browse · Max 10MB per file
-              </span>
-            </div>
-          ) : (
-            <div
-              className={styles.fileList}
-              onClick={(e) => e.stopPropagation()}
-            >
-              {selectedFiles.map((file, idx) => (
-                <div key={`${file.name}-${idx}`} className={styles.fileItem}>
-                  <div className={styles.fileIcon}>
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <path d="M14.5 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V7.5L14.5 2z" />
-                      <polyline points="14 2 14 8 20 8" />
-                    </svg>
-                  </div>
-                  <div className={styles.fileInfo}>
-                    <span className={styles.fileName}>{file.name}</span>
-                    <span className={styles.fileSize}>
-                      {formatFileSize(file.size)}
-                    </span>
-                  </div>
+                <span className={styles.dropZoneIcon}>
+                  <UploadSimple size={22} weight="bold" aria-hidden="true" />
+                </span>
+                <span className={styles.dropZoneTitle}>
+                  {t.rich("dropTitle", { u: (chunks) => <u>{chunks}</u> })}
+                </span>
+                <span className={styles.dropZoneSub}>{t("dropSub")}</span>
+              </button>
+            ) : (
+              <div className={styles.fileList}>
+                <div className={styles.fileListHeader}>
+                  <span>{t("ready", { count: selectedFiles.length })}</span>
                   <button
-                    className={styles.fileRemove}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      removeFile(idx);
-                    }}
+                    type="button"
+                    className={styles.linkBtn}
+                    onClick={openPicker}
                   >
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <line x1="18" y1="6" x2="6" y2="18" />
-                      <line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
+                    <Plus size={14} weight="bold" aria-hidden="true" />
+                    {t("addMore")}
                   </button>
                 </div>
-              ))}
-              <button
-                className={styles.addMoreBtn}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  fileInputRef.current?.click();
-                }}
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <line x1="12" y1="5" x2="12" y2="19" />
-                  <line x1="5" y1="12" x2="19" y2="12" />
-                </svg>
-                Add more files
-              </button>
-            </div>
-          )}
-        </div>
-
-        {}
-        <div className={styles.actions}>
-          {selectedFiles.length > 0 && (
-            <button
-              className={styles.clearBtn}
-              onClick={clearFiles}
-              disabled={uploading}
-            >
-              Clear all
-            </button>
-          )}
-          <button
-            className={styles.uploadBtn}
-            onClick={handleUpload}
-            disabled={selectedFiles.length === 0 || uploading}
-          >
-            {uploading ? (
-              <span className={styles.uploadingState}>
-                <span className={styles.spinner} />
-                {uploadProgress || "Indexing..."}
-              </span>
-            ) : (
-              <>
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-                  <polyline points="17 8 12 3 7 8" />
-                  <line x1="12" y1="3" x2="12" y2="15" />
-                </svg>
-                Upload to Pinecone
-                {selectedFiles.length > 0 && ` (${selectedFiles.length})`}
-              </>
+                <ul>
+                  {selectedFiles.map((file, idx) => (
+                    <li key={`${file.name}-${idx}`} className={styles.fileItem}>
+                      <FilePdf
+                        size={22}
+                        className={styles.fileIcon}
+                        aria-hidden="true"
+                      />
+                      <span className={styles.fileName}>{file.name}</span>
+                      <span className={styles.fileSize}>
+                        {formatFileSize(file.size)}
+                      </span>
+                      <button
+                        type="button"
+                        className={styles.iconBtn}
+                        aria-label={t("remove", { name: file.name })}
+                        onClick={() =>
+                          setSelectedFiles((prev) =>
+                            prev.filter((_, i) => i !== idx),
+                          )
+                        }
+                        disabled={uploading}
+                      >
+                        <X size={14} weight="bold" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             )}
-          </button>
-        </div>
+          </div>
 
-        {}
-        {error && (
-          <div className={styles.errorBanner}>
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
+          {error && (
+            <p className={styles.errorBanner} role="alert">
+              <Warning size={16} weight="fill" aria-hidden="true" />
+              {t(`errors.${error}`)}
+            </p>
+          )}
+
+          <div className={styles.actions}>
+            {selectedFiles.length > 0 && (
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => setSelectedFiles([])}
+                disabled={uploading}
+              >
+                {t("clearAll")}
+              </button>
+            )}
+            <button
+              type="button"
+              className={`${styles.uploadBtn} btn-primary`}
+              onClick={handleUpload}
+              disabled={selectedFiles.length === 0 || uploading}
             >
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="8" x2="12" y2="12" />
-              <line x1="12" y1="16" x2="12.01" y2="16" />
-            </svg>
-            {error}
+              {uploading ? (
+                <>
+                  <span className={styles.spinner} aria-hidden="true" />
+                  {t("indexing", { count: selectedFiles.length })}
+                </>
+              ) : (
+                <>
+                  {t("upload")}
+                  {selectedFiles.length > 0 && (
+                    <span className={styles.uploadCount}>
+                      {selectedFiles.length}
+                    </span>
+                  )}
+                </>
+              )}
+            </button>
           </div>
-        )}
 
-        {}
-        {history.length > 0 && (
-          <div className={styles.historySection}>
-            <h3 className={styles.historyTitle}>Recent Uploads</h3>
-            <div className={styles.historyList}>
-              {history.map((entry) => (
-                <div key={entry.id} className={styles.historyCard}>
-                  <div className={styles.historyHeader}>
-                    <span className={styles.historyTime}>
-                      {formatTime(entry.timestamp)}
-                    </span>
-                    <span className={styles.historyChunks}>
-                      {entry.totalChunks} chunks indexed
-                    </span>
-                  </div>
-                  <div className={styles.historyFiles}>
-                    {entry.files.map((f, idx) => (
-                      <div key={idx} className={styles.historyFile}>
-                        <span
-                          className={`${styles.historyDot} ${
-                            f.status === "success"
-                              ? styles.dotSuccess
-                              : styles.dotFailed
-                          }`}
-                        />
-                        <span className={styles.historyFileName}>
-                          {f.fileName}
-                        </span>
-                        <span className={styles.historyFileMeta}>
-                          {f.status === "success"
-                            ? `${f.chunks} chunks`
-                            : f.error || "failed"}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
+          {lastUpload?.files.some((f) => f.status === "failed") && (
+            <ul className={styles.failedList}>
+              {lastUpload.files
+                .filter((f) => f.status === "failed")
+                .map((f) => (
+                  <li key={f.fileName}>
+                    <Warning size={14} aria-hidden="true" />
+                    <span>{f.fileName}</span>
+                    <span>{f.error || t("failedFile")}</span>
+                  </li>
+                ))}
+            </ul>
+          )}
+        </section>
+
+        <section className={styles.library} aria-labelledby="library-title">
+          <header className={styles.libraryHead}>
+            <h2 id="library-title">{t("library")}</h2>
+            {documents && documents.length > 0 && (
+              <span>
+                {t("librarySummary", {
+                  docs: documents.length,
+                  passages: totalPassages,
+                })}
+              </span>
+            )}
+          </header>
+
+          {documents === null ? (
+            <div
+              className={styles.librarySkeleton}
+              aria-busy="true"
+              aria-label={t("libraryLoading")}
+            >
+              <span />
+              <span />
+              <span />
             </div>
-          </div>
-        )}
+          ) : documents.length === 0 ? (
+            <p className={styles.libraryEmpty}>{t("libraryEmpty")}</p>
+          ) : (
+            <ul className={styles.docList}>
+              {documents.map((doc) => (
+                <li
+                  key={doc.fileName}
+                  className={styles.doc}
+                  data-new={justAdded.has(doc.fileName) || undefined}
+                >
+                  <span className={styles.docSpine} aria-hidden="true">
+                    <FilePdf size={20} weight="duotone" />
+                  </span>
+                  <div className={styles.docBody}>
+                    <span className={styles.docName} title={doc.fileName}>
+                      {readableFile(doc.fileName)}
+                    </span>
+                    <span className={styles.docMeta}>
+                      {t("passages", { count: doc.passages })}
+                      {doc.pages != null &&
+                        ` · ${t("pages", { count: doc.pages })}`}
+                      {" · "}
+                      {justAdded.has(doc.fileName)
+                        ? t("justAdded")
+                        : doc.uploadedAt &&
+                          t("added", {
+                            date: format.dateTime(new Date(doc.uploadedAt), {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            }),
+                          })}
+                    </span>
+                  </div>
 
-        {}
-        <button className={styles.backBtn} onClick={() => router.push("/chat")}>
-          ← Back to Chat
-        </button>
+                  {deleting === doc.fileName ? (
+                    <span className={styles.docStatus}>
+                      <span className={styles.spinnerDark} aria-hidden="true" />
+                      {t("deleting")}
+                    </span>
+                  ) : confirming === doc.fileName ? (
+                    <div className={styles.confirm}>
+                      <span>{t("confirmDelete")}</span>
+                      <button
+                        type="button"
+                        className={styles.confirmYes}
+                        onClick={() => handleDelete(doc.fileName)}
+                      >
+                        {t("confirmYes")}
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.linkBtn}
+                        onClick={() => setConfirming(null)}
+                      >
+                        {t("confirmNo")}
+                      </button>
+                    </div>
+                  ) : justAdded.has(doc.fileName) ? (
+                    <span className={styles.docNew}>
+                      <Check size={14} weight="bold" aria-hidden="true" />
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      className={styles.iconBtn}
+                      aria-label={`${t("delete")}: ${doc.fileName}`}
+                      title={t("delete")}
+                      onClick={() => setConfirming(doc.fileName)}
+                    >
+                      <Trash size={16} />
+                    </button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
       </div>
-    </div>
+    </AppShell>
   );
 }
