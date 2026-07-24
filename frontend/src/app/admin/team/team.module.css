@@ -133,3 +133,41 @@
   font-weight: 600;
 }
 
+.badge[data-role="admin"] {
+  background: var(--walnut);
+  color: var(--ember);
+}
+
+.badge[data-role="subadmin"] {
+  background: var(--accent-dim);
+  color: var(--accent);
+}
+
+.removeBtn,
+.linkBtn {
+  flex-shrink: 0;
+  padding: 7px 11px;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    border-color 200ms ease,
+    color 200ms ease,
+    background-color 200ms ease;
+}
+
+.removeBtn:hover {
+  border-color: color-mix(in srgb, var(--danger) 45%, transparent);
+  background: var(--danger-dim);
+  color: var(--danger);
+}
+
+.linkBtn {
+  border-color: transparent;
+}
+
