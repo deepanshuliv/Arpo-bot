@@ -210,3 +210,46 @@
   font-size: 13.5px;
 }
 
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.skeleton span {
+  height: 70px;
+  border-radius: 14px;
+  background: linear-gradient(90deg, var(--bg-tertiary) 0%, var(--bg-hover) 50%, var(--bg-tertiary) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+/* ═════ Add form ═════ */
+
+.formCard {
+  align-self: start;
+  padding: 24px;
+  border-radius: 18px;
+  background: var(--paper);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--border) 75%, transparent),
+    0 24px 50px -32px var(--shadow-color);
+  animation: rise 700ms 80ms var(--ease-out) both;
+}
+
+.formIcon {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  margin-bottom: 14px;
+  border-radius: 13px;
+  background: var(--walnut);
+  color: var(--ember);
+}
+
+.formCard h3 {
+  font-size: var(--text-h3);
+  font-weight: var(--weight-display);
+}
+
