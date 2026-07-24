@@ -253,3 +253,43 @@
   font-weight: var(--weight-display);
 }
 
+.formDesc {
+  margin-top: 6px;
+  color: var(--text-secondary);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.rules {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 16px 0 20px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--bg-primary);
+  list-style: none;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.rules li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: var(--text-secondary);
+}
+
+.rules svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.rules [data-kind="can"] svg {
+  color: var(--success);
+}
+
+.rules [data-kind="cannot"] svg {
+  color: var(--danger);
+}
+
