@@ -293,3 +293,46 @@
   color: var(--danger);
 }
 
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.field label {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 12px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.field label span {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.field > input {
+  background: var(--bg-secondary);
+}
+
+.errorBanner,
+.successBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: 4px 10px 10px 4px;
+  font-size: 14px;
+  line-height: 1.5;
+  animation: fade 200ms ease-out;
+}
+
