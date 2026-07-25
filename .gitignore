@@ -86,3 +86,6 @@ backend/src/assests/pdf/*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Uploaded documents kept by the backend
+backend/storage/
