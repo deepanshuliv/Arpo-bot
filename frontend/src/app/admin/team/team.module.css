@@ -336,3 +336,43 @@
   animation: fade 200ms ease-out;
 }
 
+.errorBanner svg,
+.successBanner svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.errorBanner {
+  border-left: 3px solid var(--danger);
+  background: var(--danger-dim);
+  color: var(--danger);
+}
+
+.successBanner {
+  border-left: 3px solid var(--success);
+  background: color-mix(in srgb, var(--success) 12%, transparent);
+  color: var(--success);
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid color-mix(in srgb, var(--accent-ink) 35%, transparent);
+  border-top-color: var(--accent-ink);
+  border-radius: 50%;
+  animation: spin 700ms linear infinite;
+}
+
+.locked {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+  color: var(--text-secondary);
+  font-size: 16px;
+  text-align: center;
+}
+
