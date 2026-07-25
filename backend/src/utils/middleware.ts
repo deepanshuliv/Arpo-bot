@@ -33,33 +33,39 @@ export async function authMiddleware(
   res: Response,
   next: NextFunction,
 ) {
-  try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({
-        success: false,
-        message: "No token provided. Please sign in.",
-      });
-    }
+  const authHeader = req.headers.authorization;
+  const token = authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : undefined;
+  const secret = process.env.JWT_SECRET;
+  if (!token || !secret) {
+    return unauthorized(res, "UNAUTHORIZED", "Please sign in.");
+  }
 
-    const token = authHeader.split(" ")[1];
-    const secret = process.env.JWT_SECRET;
-    if (!token || !secret) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid authorization header",
-      });
+  let decoded: JwtPayload & { iat?: number };
+  try {
+    decoded = jwt.verify(token, secret) as unknown as JwtPayload & { iat?: number };
+  } catch (error: any) {
+    if (error?.name === "TokenExpiredError") {
+      return unauthorized(res, "SESSION_EXPIRED", "Your session has expired. Please sign in again.");
     }
-    const decoded = jwt.verify(token, secret) as unknown as JwtPayload;
+    return unauthorized(res, "UNAUTHORIZED", "Invalid sign-in. Please sign in again.");
+  }
+
+  try {
+    const user = await Users.findById(decoded.userId).select("role passwordChangedAt");
+    if (!user) {
+      return unauthorized(res, "UNAUTHORIZED", "This account no longer exists.");
+    }
+    // 1 s tolerance: token timestamps are whole seconds
+    const issuedAt = (decoded.iat ?? 0) * 1000;
+    if (user.passwordChangedAt && issuedAt < user.passwordChangedAt.getTime() - 1000) {
+      return unauthorized(res, "SESSION_EXPIRED", "Your password was changed. Please sign in again.");
+    }
 
     req.userId = decoded.userId;
-    req.userRole = decoded.role;
+    req.userRole = user.role ?? decoded.role;
     next();
   } catch (error) {
-    return res.status(401).json({
-      success: false,
-      message: "Invalid or expired token",
-    });
+    return res.status(500).json({ success: false, message: "Authorization check failed" });
   }
 }
 
