@@ -12,6 +12,8 @@ const userSchema = new Schema(
     password: { type: String },
     role: { type: String, enum: ["user", "subadmin", "admin"], default: "user" },
     thread_id: [{ type: Schema.Types.ObjectId, ref: "Threads" }],
+    // Sign-ins issued before this moment are no longer valid (set on password reset)
+    passwordChangedAt: { type: Date, default: undefined },
     // Who granted staff access (for sub-admins)
     addedBy: { type: Schema.Types.ObjectId, ref: "Users", default: undefined },
   },

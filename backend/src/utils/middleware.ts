@@ -20,6 +20,14 @@ interface JwtPayload {
   role: string;
 }
 
+function unauthorized(res: Response, code: "UNAUTHORIZED" | "SESSION_EXPIRED", message: string) {
+  return res.status(401).json({ success: false, code, message });
+}
+
+/**
+ * Accepts a valid, unexpired sign-in (7 days) for an account that still exists
+ * and hasn't reset its password since the sign-in was issued.
+ */
 export async function authMiddleware(
   req: Request,
   res: Response,
