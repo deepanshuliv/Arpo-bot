@@ -65,15 +65,14 @@ pineConeRouter.post(
       return res.status(200).json({
         success: true,
         message: "PDF indexing complete",
-        data: {
-          totalChunks,
-          files: results,
-        },
+        data: { totalChunks, files: results },
       });
     } catch (error) {
+      for (const file of files) deleteFile(file.path);
       console.log("[ERROR]", error);
       res.status(500).json({
         success: false,
+        code: "SERVER_ERROR",
         message: "Internal server error during PDF upload",
       });
     }
@@ -140,7 +139,10 @@ pineConeRouter.get(
       return res.status(200).json({
         success: true,
         data: {
-          documents: documents.map(({ ids, ...doc }) => doc),
+          documents: documents.map(({ ids, ...doc }) => ({
+            ...doc,
+            hasFile: hasOriginal(doc.fileName),
+          })),
           totalPassages: documents.reduce((sum, d) => sum + d.passages, 0),
         },
       });
@@ -183,6 +185,7 @@ pineConeRouter.delete(
         await pineconeIndex.deleteMany(doc.ids.slice(i, i + 1000));
       }
 
+      await removeOriginal(fileName);
       console.log(`[INFO] Deleted ${doc.ids.length} passages of ${fileName}`);
       return res.status(200).json({
         success: true,
@@ -195,6 +198,68 @@ pineConeRouter.delete(
         code: "SERVER_ERROR",
         message: "Could not delete the document",
       });
+    }
+  },
+);
+
+/** The original PDF, shown inline in the admin viewer. */
+pineConeRouter.get(
+  "/documents/file",
+  authMiddleware,
+  adminMiddleware,
+  (req: Request, res: Response) => {
+    const fileName = String(req.query.fileName ?? "");
+    const file = fileName ? originalPath(fileName) : null;
+    if (!file) {
+      return res.status(404).json({
+        success: false,
+        code: "FILE_NOT_STORED",
+        message: "The original file isn't stored. Upload it again to view it.",
+      });
+    }
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `inline; filename*=UTF-8''${encodeURIComponent(fileName)}`,
+    );
+    return res.sendFile(file);
+  },
+);
+
+/** The text ARPO answers from, page by page (works for every document). */
+pineConeRouter.get(
+  "/documents/passages",
+  authMiddleware,
+  adminMiddleware,
+  async (req: Request, res: Response) => {
+    try {
+      const fileName = String(req.query.fileName ?? "");
+      const doc = (await listIndexedDocuments()).find((d) => d.fileName === fileName);
+      if (!doc) {
+        return res.status(404).json({ success: false, code: "NOT_FOUND", message: "Document not found" });
+      }
+
+      const passages: { page: number | null; chunk: number | null; text: string }[] = [];
+      for (let i = 0; i < doc.ids.length; i += 100) {
+        const batch = await pineconeIndex.fetch(doc.ids.slice(i, i + 100));
+        for (const record of Object.values(batch.records ?? {})) {
+          const meta = (record.metadata ?? {}) as Record<string, any>;
+          passages.push({
+            page: meta.pageNumber ?? meta["loc.pageNumber"] ?? null,
+            chunk: meta.chunkIndex ?? null,
+            text: String(meta.text ?? ""),
+          });
+        }
+      }
+      passages.sort((a, b) => (a.page ?? 0) - (b.page ?? 0) || (a.chunk ?? 0) - (b.chunk ?? 0));
+
+      return res.status(200).json({
+        success: true,
+        data: { fileName, passages, hasFile: hasOriginal(fileName) },
+      });
+    } catch (error) {
+      console.log("[ERROR]", error);
+      return res.status(500).json({ success: false, code: "SERVER_ERROR", message: "Could not load passages" });
     }
   },
 );
