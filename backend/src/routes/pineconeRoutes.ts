@@ -3,6 +3,7 @@ import { authMiddleware, adminMiddleware } from "../utils/middleware";
 import upload, { deleteFile } from "../utils/multer";
 import { processPdf } from "../utils/pdfloader";
 import { pineconeIndex, vectorStore } from "../utils/vector";
+import { hasOriginal, originalPath, removeOriginal, saveOriginal } from "../utils/documentStore";
 
 const pineConeRouter = Router();
 
@@ -12,33 +13,41 @@ pineConeRouter.post(
   adminMiddleware,
   upload.array("pdfFiles"),
   async (req: Request, res: Response) => {
+    const files = (req.files as Express.Multer.File[]) ?? [];
     try {
-      const files = req.files as Express.Multer.File[];
-
-      if (!files || files.length === 0) {
+      if (files.length === 0) {
         return res.status(400).json({
           success: false,
+          code: "INVALID_INPUT",
           message: "No files provided",
         });
       }
 
       console.log(`[INFO] Processing ${files.length} PDF files...`);
 
+      // Re-uploading a file replaces its old passages instead of duplicating them
+      const existing = new Map((await listIndexedDocuments()).map((d) => [d.fileName, d.ids]));
+
       const results = [];
       let totalChunks = 0;
 
       for (const file of files) {
         try {
-
           const docs = await processPdf(file.path, file.originalname);
-
           await vectorStore.addDocuments(docs);
+
+          const oldIds = existing.get(file.originalname) ?? [];
+          for (let i = 0; i < oldIds.length; i += 1000) {
+            await pineconeIndex.deleteMany(oldIds.slice(i, i + 1000));
+          }
+          await saveOriginal(file.path, file.originalname);
 
           totalChunks += docs.length;
           results.push({
             fileName: file.originalname,
             chunks: docs.length,
             status: "success",
+            replaced: oldIds.length > 0,
           });
         } catch (err: any) {
           console.error(`[ERROR] Failed to process ${file.originalname}:`, err);
@@ -49,7 +58,6 @@ pineConeRouter.post(
             error: err.message || "Failed to index",
           });
         } finally {
-
           deleteFile(file.path);
         }
       }
