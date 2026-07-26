@@ -15,3 +15,11 @@ function storedPath(fileName: string) {
   return path.join(DOCS_DIR, safe || "document.pdf");
 }
 
+export async function saveOriginal(tempPath: string, fileName: string) {
+  await fs.copyFile(tempPath, storedPath(fileName));
+}
+
+export function hasOriginal(fileName: string) {
+  return existsSync(storedPath(fileName));
+}
+
