@@ -27,8 +27,13 @@ function authError(res: Response, status: number, code: string, message: string)
   return res.status(status).json({ success: false, code, message });
 }
 
+/** Sign-ins last 7 days; after that the user signs in again. */
+const SESSION_LENGTH = "7d";
+
 function signToken(user: { _id: unknown; role?: string | null }) {
-  return jwt.sign({ userId: user._id, role: user.role || "user" }, process.env.JWT_SECRET!);
+  return jwt.sign({ userId: user._id, role: user.role || "user" }, process.env.JWT_SECRET!, {
+    expiresIn: SESSION_LENGTH,
+  });
 }
 
 /** Looks up the account and checks the password, or sends the matching error. */
@@ -139,11 +144,11 @@ userRouter.post("/admin/signin", async (req: Request, res: Response) => {
 });
 
 /*
-  Password reset WITHOUT email verification — local development only.
-  Anyone who knows an address could reset that account, so it is off unless
-  ALLOW_INSECURE_PASSWORD_RESET=true. Replace with an emailed link before launch.
+  Password reset without email verification (a deliberate product choice):
+  enter the account email and a new password twice. On by default; set
+  ALLOW_INSECURE_PASSWORD_RESET=false to turn it off.
 */
-const resetEnabled = () => process.env.ALLOW_INSECURE_PASSWORD_RESET === "true";
+const resetEnabled = () => process.env.ALLOW_INSECURE_PASSWORD_RESET !== "false";
 
 const resetLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -187,6 +192,8 @@ userRouter.post("/password/reset", resetLimiter, async (req: Request, res: Respo
     }
 
     user.password = await bcrypt.hash(password, 10);
+    // Signs this account out on every device
+    user.passwordChangedAt = new Date();
     await user.save();
     console.log(`[INFO] Password reset for ${email}`);
 
