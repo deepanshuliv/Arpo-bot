@@ -23,3 +23,11 @@ export function hasOriginal(fileName: string) {
   return existsSync(storedPath(fileName));
 }
 
+export function originalPath(fileName: string) {
+  const file = storedPath(fileName);
+  return existsSync(file) ? file : null;
+}
+
+export async function removeOriginal(fileName: string) {
+  await fs.rm(storedPath(fileName), { force: true });
+}
