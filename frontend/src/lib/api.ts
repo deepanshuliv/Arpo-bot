@@ -5,6 +5,8 @@ export type Language = "en" | "hi";
 /** Codes the backend returns so errors can be shown in the reader's language. */
 export type ErrorCode =
   | "UNAUTHORIZED"
+  | "SESSION_EXPIRED"
+  | "FILE_NOT_STORED"
   | "INVALID_INPUT"
   | "RATE_LIMITED"
   | "IMAGE_FAILED"
@@ -76,6 +78,14 @@ export interface IndexedDocument {
   passages: number;
   pages: number | null;
   uploadedAt: string | null;
+  /** The original PDF is stored and can be viewed */
+  hasFile: boolean;
+}
+
+export interface DocumentPassage {
+  page: number | null;
+  chunk: number | null;
+  text: string;
 }
 
 export interface PdfUploadResult {
@@ -84,6 +94,7 @@ export interface PdfUploadResult {
     fileName: string;
     chunks: number;
     status: "success" | "failed";
+    replaced?: boolean;
     error?: string;
   }>;
 }
@@ -91,6 +102,16 @@ export interface PdfUploadResult {
 function authHeaders(): Record<string, string> {
   const token = localStorage.getItem("arpo_token");
   return token ? { Authorization: "Bearer " + token } : {};
+}
+
+/**
+ * A signed-in request was rejected (expired after 7 days, or signed out by a
+ * password reset): clear the session and go to the matching sign-in page.
+ */
+function endSession() {
+  clearSession();
+  const signIn = window.location.pathname.startsWith("/admin") ? "/admin/auth" : "/auth";
+  window.location.replace(`${signIn}?expired=1`);
 }
 
 /** fetch + JSON that never throws: network failures become code NETWORK. */
