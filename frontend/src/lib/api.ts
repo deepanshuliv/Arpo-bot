@@ -119,6 +119,10 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<ApiResp
   try {
     const res = await fetch(API_BASE + path, init);
     const body = (await res.json().catch(() => ({}))) as ApiResponse<T>;
+    const sentToken = Boolean((init.headers as Record<string, string> | undefined)?.Authorization);
+    if (res.status === 401 && sentToken && (body.code === "SESSION_EXPIRED" || body.code === "UNAUTHORIZED")) {
+      endSession();
+    }
     if (!res.ok && body.success !== false) {
       return { success: false, code: "SERVER_ERROR", message: res.statusText };
     }
