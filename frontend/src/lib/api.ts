@@ -260,6 +260,33 @@ export function deleteDocument(fileName: string) {
   );
 }
 
+export function getDocumentPassages(fileName: string) {
+  return request<{ fileName: string; passages: DocumentPassage[]; hasFile: boolean }>(
+    `/api/v1/pinecone/documents/passages?fileName=${encodeURIComponent(fileName)}`,
+    { headers: authHeaders() },
+  );
+}
+
+/** The stored PDF as a local object URL for the viewer (caller revokes it). */
+export async function getDocumentFileUrl(
+  fileName: string,
+): Promise<{ url: string } | { code: ErrorCode }> {
+  try {
+    const res = await fetch(
+      `${API_BASE}/api/v1/pinecone/documents/file?fileName=${encodeURIComponent(fileName)}`,
+      { headers: authHeaders() },
+    );
+    if (!res.ok) {
+      const body = (await res.json().catch(() => ({}))) as ApiResponse<unknown>;
+      if (res.status === 401) endSession();
+      return { code: body.code ?? "SERVER_ERROR" };
+    }
+    return { url: URL.createObjectURL(await res.blob()) };
+  } catch {
+    return { code: "NETWORK" };
+  }
+}
+
 export function uploadPdfs(files: File[]) {
   const formData = new FormData();
   for (const file of files) formData.append("pdfFiles", file);
