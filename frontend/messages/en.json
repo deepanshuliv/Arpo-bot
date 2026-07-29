@@ -146,7 +146,8 @@
       "signInNow": "Sign in now",
       "disabledTitle": "Password reset isn’t available",
       "disabledSub": "Ask your troop leader or an admin to help you get back into your account."
-    }
+    },
+    "expired": "Your session has ended. Please sign in again."
   },
   "adminAuth": {
     "title": "Leader sign in",
@@ -230,7 +231,8 @@
       "FORBIDDEN": "You don’t have permission to do that.",
       "EMAIL_TAKEN": "Something went wrong on our side. Please try again.",
       "ALREADY_STAFF": "Something went wrong on our side. Please try again.",
-      "AI_BUSY": "ARPO is very busy right now. Please try again in a minute."
+      "AI_BUSY": "ARPO is very busy right now. Please try again in a minute.",
+      "SESSION_EXPIRED": "Your session has ended. Please sign in again."
     }
   },
   "admin": {
@@ -254,7 +256,7 @@
     "pages": "{count, plural, one {# page} other {# pages}}",
     "added": "Added {date}",
     "justAdded": "Just added",
-    "delete": "Remove",
+    "delete": "Delete",
     "confirmDelete": "Remove from ARPO?",
     "confirmYes": "Remove",
     "confirmNo": "Keep",
@@ -267,7 +269,46 @@
       "deleteFailed": "We couldn’t remove that document. Please try again.",
       "network": "We couldn’t reach the server. Check your connection and try again."
     },
-    "failedFile": "Failed"
+    "failedFile": "Failed",
+    "uploadButton": "Upload PDFs",
+    "stats": {
+      "documents": "Documents",
+      "passages": "Passages",
+      "pages": "Pages"
+    },
+    "cols": {
+      "document": "Document",
+      "pages": "Pages",
+      "passages": "Passages",
+      "added": "Added",
+      "actions": "Actions"
+    },
+    "view": "View",
+    "storedPdf": "PDF stored",
+    "textOnly": "Text only",
+    "emptyTitle": "No documents yet",
+    "emptyDesc": "Upload your troop’s manuals and ARPO will start answering from them.",
+    "panel": {
+      "title": "Upload PDFs",
+      "sub": "ARPO reads each PDF and answers from it. Uploading a file with the same name replaces the earlier copy.",
+      "close": "Close",
+      "results": "Just uploaded",
+      "replaced": "Replaced the earlier copy",
+      "indexed": "{count, plural, one {# passage indexed} other {# passages indexed}}"
+    },
+    "viewer": {
+      "tabPdf": "PDF",
+      "tabText": "Text ARPO uses",
+      "loadingPdf": "Opening the PDF",
+      "loadingText": "Loading the text",
+      "noPdfTitle": "Only the text is available",
+      "noPdf": "This document was uploaded before ARPO kept original files. Upload it again to view the PDF here.",
+      "page": "Page {page}",
+      "noPage": "Unnumbered",
+      "openNewTab": "Open in new tab",
+      "close": "Close viewer",
+      "failed": "We couldn’t open this document. Please try again."
+    }
   },
   "notFound": {
     "eyebrow": "Page not found · 404",
