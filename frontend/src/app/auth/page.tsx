@@ -4,7 +4,7 @@ import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { ArrowRight, WarningCircle } from "@phosphor-icons/react";
+import { ArrowRight, ClockCountdown, WarningCircle } from "@phosphor-icons/react";
 import PasswordInput from "@/components/PasswordInput";
 import SiteHeader, { headerStyles } from "@/components/SiteHeader";
 import { isStaffRole, signIn, signUp } from "@/lib/api";
@@ -106,6 +106,13 @@ function AuthPageContent() {
               <h1>{isSignUp ? t("joinTitle") : t("welcomeTitle")}</h1>
               <p>{isSignUp ? t("joinSub") : t("welcomeSub")}</p>
             </header>
+
+            {params.get("expired") === "1" && (
+              <p className={styles.notice} role="status">
+                <ClockCountdown size={18} weight="duotone" aria-hidden="true" />
+                {t("expired")}
+              </p>
+            )}
 
             <div className={styles.segmented} role="group" aria-label={t("tabSignIn")}>
               <button

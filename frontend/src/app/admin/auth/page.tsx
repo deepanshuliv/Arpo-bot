@@ -4,7 +4,7 @@ import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { ArrowRight, LockKey, WarningCircle } from "@phosphor-icons/react";
+import { ArrowRight, ClockCountdown, LockKey, WarningCircle } from "@phosphor-icons/react";
 import PasswordInput from "@/components/PasswordInput";
 import SiteHeader, { headerStyles } from "@/components/SiteHeader";
 import { adminSignIn } from "@/lib/api";
@@ -103,8 +103,17 @@ function AdminAuthContent() {
             </header>
 
             <p className={styles.notice}>
-              <LockKey size={18} weight="duotone" aria-hidden="true" />
-              {ta("notice")}
+              {params.get("expired") === "1" ? (
+                <>
+                  <ClockCountdown size={18} weight="duotone" aria-hidden="true" />
+                  {t("expired")}
+                </>
+              ) : (
+                <>
+                  <LockKey size={18} weight="duotone" aria-hidden="true" />
+                  {ta("notice")}
+                </>
+              )}
             </p>
 
             <form onSubmit={handleSubmit} className={`${styles.form} ${styles.formSpaced}`} noValidate>
