@@ -15,3 +15,17 @@ function formatFileSize(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+type UploadPanelProps = {
+  open: boolean;
+  onClose: () => void;
+  files: File[];
+  onAddFiles: (files: File[]) => void;
+  onRemoveFile: (index: number) => void;
+  onClear: () => void;
+  onUpload: () => void;
+  uploading: boolean;
+  error: UploadErrorKey | null;
+  lastUpload: PdfUploadResult | null;
+  onView: (fileName: string) => void;
+};
+
