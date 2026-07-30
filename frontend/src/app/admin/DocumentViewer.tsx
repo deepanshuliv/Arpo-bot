@@ -12,3 +12,9 @@ import {
 } from "@/lib/api";
 import styles from "./admin.module.css";
 
+type Tab = "pdf" | "text";
+
+function readableFile(name: string) {
+  return name.replace(/\.pdf$/i, "").replace(/[_-]+/g, " ").trim();
+}
+
