@@ -3,17 +3,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
-import {
-  Check,
-  FilePdf,
-  Plus,
-  Trash,
-  UploadSimple,
-  Warning,
-  X,
-} from "@phosphor-icons/react";
-import AppShell from "@/components/AppShell";
+import { Eye, FilePdf, Trash, UploadSimple, Warning } from "@phosphor-icons/react";
 import AdminNav from "@/components/AdminNav";
+import AppShell from "@/components/AppShell";
 import {
   deleteDocument,
   getDocuments,
@@ -23,64 +15,48 @@ import {
   type PdfUploadResult,
 } from "@/lib/api";
 import { useSession } from "@/lib/session";
+import DocumentViewer from "./DocumentViewer";
+import UploadPanel, { type UploadErrorKey } from "./UploadPanel";
 import styles from "./admin.module.css";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
-type ErrorKey =
-  | "notPdf"
-  | "tooLarge"
-  | "uploadFailed"
-  | "listFailed"
-  | "deleteFailed"
-  | "network";
-
 function readableFile(name: string) {
-  return name
-    .replace(/\.pdf$/i, "")
-    .replace(/[_-]+/g, " ")
-    .trim();
-}
-
-function formatFileSize(bytes: number) {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  return name.replace(/\.pdf$/i, "").replace(/[_-]+/g, " ").trim();
 }
 
 export default function AdminPage() {
   const t = useTranslations("admin");
   const format = useFormatter();
   const router = useRouter();
+  const session = useSession();
+  const isAdminSession = isStaffRole(session?.role);
 
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [uploading, setUploading] = useState(false);
-  const [lastUpload, setLastUpload] = useState<PdfUploadResult | null>(null);
   const [documents, setDocuments] = useState<IndexedDocument[] | null>(null);
   const [totalPassages, setTotalPassages] = useState(0);
+  const [listError, setListError] = useState<"listFailed" | "deleteFailed" | "network" | null>(null);
   const [confirming, setConfirming] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [viewing, setViewing] = useState<string | null>(null);
+
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<UploadErrorKey | null>(null);
+  const [lastUpload, setLastUpload] = useState<PdfUploadResult | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [error, setError] = useState<ErrorKey | null>(null);
-  const session = useSession();
-  const userName = session?.name ?? "";
-  const isAdminSession = isStaffRole(session?.role);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const dragCounterRef = useRef(0);
 
-  const applyDocuments = useCallback(
-    (res: Awaited<ReturnType<typeof getDocuments>>) => {
-      if (res.success && res.data) {
-        setDocuments(res.data.documents);
-        setTotalPassages(res.data.totalPassages);
-      } else {
-        if (res.code === "UNAUTHORIZED") router.replace("/admin/auth");
-        setDocuments([]);
-        setError(res.code === "NETWORK" ? "network" : "listFailed");
-      }
-    },
-    [router],
-  );
+  const applyDocuments = useCallback((res: Awaited<ReturnType<typeof getDocuments>>) => {
+    if (res.success && res.data) {
+      setDocuments(res.data.documents);
+      setTotalPassages(res.data.totalPassages);
+      setListError(null);
+    } else {
+      setDocuments((prev) => prev ?? []);
+      setListError(res.code === "NETWORK" ? "network" : "listFailed");
+    }
+  }, []);
 
   const loadDocuments = useCallback(() => {
     getDocuments().then(applyDocuments);
