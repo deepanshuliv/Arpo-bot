@@ -1,23 +1,24 @@
-.content {
-  display: grid;
+/* ═════ Dashboard ═════ */
+
+.dashboard {
+  display: flex;
   flex: 1;
-  grid-template-columns: minmax(0, 1.25fr) minmax(320px, 1fr);
-  gap: clamp(28px, 4vw, 56px);
+  flex-direction: column;
+  gap: 20px;
   width: 100%;
   max-width: 1200px;
   min-height: 0;
   margin: 0 auto;
-  padding: 32px clamp(20px, 4vw, 48px) 28px;
+  padding: 32px clamp(16px, 4vw, 48px) 28px;
+  animation: rise 600ms var(--ease-out) both;
 }
 
-/* ═════ Upload column ═════ */
-
-.workArea {
+.dashHead {
   display: flex;
-  flex-direction: column;
-  gap: 18px;
-  min-height: 0;
-  animation: rise 600ms var(--ease-out) both;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px 24px;
 }
 
 .heading {
@@ -28,293 +29,78 @@
 }
 
 .subtitle {
-  max-width: 56ch;
+  max-width: 60ch;
   margin-top: 10px;
   color: var(--text-secondary);
   font-size: 15.5px;
   line-height: 1.6;
 }
 
-.dropZone {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  min-height: 0;
-  border: 1.5px dashed var(--border-light);
-  border-radius: 16px;
-  background: var(--paper);
-  transition:
-    border-color 250ms ease,
-    box-shadow 250ms ease;
-}
-
-.dropZone:not(.dropZoneActive):hover {
-  border-color: var(--accent);
-  box-shadow: 0 18px 40px -28px var(--shadow-color);
-}
-
-.dropZoneActive {
-  border-style: solid;
-  border-color: var(--border);
-}
-
-.dropZoneEmpty {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  width: 100%;
-  padding: 40px 24px;
-  border: 0;
-  border-radius: 16px;
-  background:
-    repeating-radial-gradient(
-      ellipse 60% 50% at 50% 42%,
-      transparent 0 30px,
-      color-mix(in srgb, var(--text-primary) 4%, transparent) 30px 31px
-    );
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
-}
-
-.dropZoneIcon {
-  display: grid;
-  place-items: center;
-  width: 54px;
-  height: 54px;
-  margin-bottom: 6px;
-  border-radius: 14px;
-  background: var(--walnut);
-  color: var(--ember);
-  box-shadow: 0 12px 24px -12px var(--shadow-color);
-  transition: transform 300ms var(--ease-out);
-}
-
-.dropZoneEmpty:hover .dropZoneIcon {
-  transform: translateY(-3px);
-}
-
-.dropZoneTitle {
-  color: var(--text-primary);
-  font-size: 16.5px;
-  font-weight: 500;
-}
-
-.dropZoneTitle u {
-  color: var(--accent);
-  text-decoration-color: var(--accent-line);
-  text-underline-offset: 4px;
-}
-
-.dropZoneSub {
-  color: var(--text-muted);
-  font-size: 13.5px;
-}
-
-.fileList {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  min-height: 0;
-  padding: 8px 10px 10px;
-}
-
-.fileListHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 8px 12px;
-  color: var(--text-muted);
-  font-size: 14px;
-}
-
-.fileList ul {
-  min-height: 0;
-  overflow-y: auto;
-  list-style: none;
-}
-
-.fileItem {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto auto;
-  align-items: center;
-  gap: 12px;
-  padding: 11px 8px;
-  border-top: 1px solid var(--border);
-  animation: fade 220ms ease-out;
-}
-
-.fileIcon {
-  color: var(--accent);
-}
-
-.fileName {
-  overflow: hidden;
-  font-size: 15px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.fileSize {
-  color: var(--text-muted);
-  font-size: 13px;
-  font-variant-numeric: tabular-nums;
-}
-
-.iconBtn {
-  display: grid;
-  flex-shrink: 0;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition:
-    background-color 200ms ease,
-    color 200ms ease;
-}
-
-.iconBtn:hover:not(:disabled) {
-  background: var(--danger-dim);
-  color: var(--danger);
-}
-
-.iconBtn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.linkBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  border: 0;
-  border-radius: 7px;
-  background: transparent;
-  color: var(--text-secondary);
-  font-family: inherit;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.linkBtn:hover {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-}
-
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
 .uploadBtn {
-  min-width: 230px;
+  flex-shrink: 0;
 }
 
-.uploadCount {
+.stats {
   display: grid;
-  place-items: center;
-  min-width: 22px;
-  height: 22px;
-  padding: 0 6px;
-  border-radius: 6px;
-  background: color-mix(in srgb, var(--accent-ink) 22%, transparent);
-  font-size: 12px;
-  font-variant-numeric: tabular-nums;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
 }
 
-.spinner,
-.spinnerDark {
-  width: 14px;
-  height: 14px;
-  border: 2px solid color-mix(in srgb, var(--accent-ink) 35%, transparent);
-  border-top-color: var(--accent-ink);
-  border-radius: 50%;
-  animation: spin 700ms linear infinite;
+.stats div {
+  padding: 14px 18px;
+  border-radius: 14px;
+  background: var(--paper);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--border) 75%, transparent);
 }
 
-.spinnerDark {
-  border-color: var(--border-light);
-  border-top-color: var(--accent);
-}
-
-.errorBanner {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
-  border-left: 3px solid var(--danger);
-  border-radius: 4px 10px 10px 4px;
-  background: var(--danger-dim);
-  color: var(--danger);
-  font-size: 14px;
-  animation: fade 200ms ease-out;
-}
-
-.failedList {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  list-style: none;
-  font-size: 13.5px;
-}
-
-.failedList li {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--danger);
-}
-
-.failedList li span:last-child {
-  margin-left: auto;
+.stats dt {
   color: var(--text-muted);
+  font-size: 13.5px;
+  font-weight: 600;
 }
 
-/* ═════ Library column ═════ */
+.stats dd {
+  margin-top: 2px;
+  font-size: 28px;
+  font-weight: var(--weight-display);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+/* ═════ Document list ═════ */
 
 .library {
   display: flex;
+  flex: 1;
   flex-direction: column;
   min-height: 0;
-  padding: 20px 18px 12px;
+  overflow: hidden;
   border-radius: 16px;
-  background: color-mix(in srgb, var(--bg-tertiary) 55%, transparent);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 70%, transparent);
-  animation: rise 700ms 80ms var(--ease-out) both;
+  background: var(--paper);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--border) 75%, transparent),
+    0 24px 50px -36px var(--shadow-color);
 }
 
-.libraryHead {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 0 6px 14px;
+.tableHead,
+.doc {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 80px 90px 130px 200px;
+  align-items: center;
+  gap: 16px;
+  padding: 0 18px;
 }
 
-.libraryHead h2 {
-  font-size: var(--text-h3);
-  font-weight: var(--weight-display);
-}
-
-.libraryHead span {
+.tableHead {
+  flex-shrink: 0;
+  height: 44px;
+  border-bottom: 1px solid var(--border);
   color: var(--text-muted);
-  font-size: 13.5px;
-  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .docList {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
   min-height: 0;
   overflow-y: auto;
   list-style: none;
