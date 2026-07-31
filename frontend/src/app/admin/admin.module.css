@@ -107,28 +107,39 @@
 }
 
 .doc {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 10px 10px 12px;
-  border-radius: 12px;
-  background: var(--paper);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--border) 70%, transparent);
+  min-height: 72px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  transition: background-color 200ms ease;
   animation: fade 300ms ease-out;
 }
 
+.doc:last-child {
+  border-bottom: 0;
+}
+
+.doc:hover {
+  background: color-mix(in srgb, var(--bg-primary) 55%, transparent);
+}
+
 .doc[data-new] {
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--success) 45%, transparent),
-    0 10px 24px -18px var(--shadow-color);
+  background: color-mix(in srgb, var(--success) 7%, transparent);
+}
+
+.docMain {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
 }
 
 .docSpine {
   display: grid;
   flex-shrink: 0;
   place-items: center;
-  width: 38px;
-  height: 46px;
+  width: 36px;
+  height: 44px;
   border-radius: 4px 8px 8px 4px;
   background: var(--walnut);
   box-shadow: inset 3px 0 0 var(--accent);
@@ -137,24 +148,79 @@
 
 .docBody {
   display: flex;
-  flex: 1;
   flex-direction: column;
-  gap: 2px;
+  align-items: flex-start;
+  gap: 4px;
   min-width: 0;
 }
 
 .docName {
+  max-width: 100%;
   overflow: hidden;
-  font-size: 15px;
+  font-size: 15.5px;
   font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.docMeta {
-  color: var(--text-muted);
-  font-size: 13px;
+.docBadge {
+  padding: 1px 7px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.docBadge[data-kind="pdf"] {
+  background: color-mix(in srgb, var(--success) 13%, transparent);
+  color: var(--success);
+}
+
+.docBadge[data-kind="text"] {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+.docCell {
+  color: var(--text-secondary);
+  font-size: 14.5px;
   font-variant-numeric: tabular-nums;
+}
+
+.docActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.rowBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 11px;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    border-color 200ms ease,
+    background-color 200ms ease,
+    color 200ms ease;
+}
+
+.rowBtn:hover {
+  border-color: var(--accent-line);
+  color: var(--accent);
+}
+
+.rowBtnDanger:hover {
+  border-color: color-mix(in srgb, var(--danger) 45%, transparent);
+  background: var(--danger-dim);
+  color: var(--danger);
 }
 
 .docStatus {
