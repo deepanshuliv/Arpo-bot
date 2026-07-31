@@ -752,29 +752,65 @@
   }
 }
 
-@media (max-width: 1000px) {
-  .content {
-    grid-template-columns: 1fr;
+/* ═════ Smaller screens: rows become cards ═════ */
+
+@media (max-width: 900px) {
+  .dashboard {
     overflow-y: auto;
   }
 
-  .dropZone {
-    min-height: 240px;
+  .library {
+    flex: none;
+    overflow: visible;
   }
 
-  .library {
-    min-height: 320px;
+  .tableHead {
+    display: none;
+  }
+
+  .doc {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px 12px;
+    padding: 14px 16px;
+  }
+
+  .docMain,
+  .docActions {
+    grid-column: 1 / -1;
+  }
+
+  .docActions {
+    justify-content: flex-start;
+  }
+
+  .docCell::before {
+    content: attr(data-label);
+    display: block;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 600;
   }
 }
 
-@media (max-width: 560px) {
-  .actions {
-    flex-direction: column-reverse;
+@media (max-width: 520px) {
+  .stats {
+    gap: 8px;
   }
 
-  .uploadBtn,
-  .actions :global(.btn-secondary) {
+  .stats div {
+    padding: 12px;
+  }
+
+  .stats dd {
+    font-size: 22px;
+  }
+
+  .uploadBtn {
     width: 100%;
+  }
+
+  .dragOverlayContent {
+    padding: 40px 32px;
   }
 
   .fileSize {
