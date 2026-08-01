@@ -204,84 +204,123 @@ export default function AdminPage() {
               <span />
             </div>
           ) : documents.length === 0 ? (
-            <p className={styles.libraryEmpty}>{t("libraryEmpty")}</p>
+            <div className={styles.empty}>
+              <span className={styles.emptyIcon} aria-hidden="true">
+                <FilePdf size={26} weight="duotone" />
+              </span>
+              <h3>{t("emptyTitle")}</h3>
+              <p>{t("emptyDesc")}</p>
+              <button type="button" className="btn-primary" onClick={() => setPanelOpen(true)}>
+                <UploadSimple size={16} weight="bold" aria-hidden="true" />
+                {t("uploadButton")}
+              </button>
+            </div>
           ) : (
-            <ul className={styles.docList}>
-              {documents.map((doc) => (
-                <li
-                  key={doc.fileName}
-                  className={styles.doc}
-                  data-new={justAdded.has(doc.fileName) || undefined}
-                >
-                  <span className={styles.docSpine} aria-hidden="true">
-                    <FilePdf size={20} weight="duotone" />
-                  </span>
-                  <div className={styles.docBody}>
-                    <span className={styles.docName} title={doc.fileName}>
-                      {readableFile(doc.fileName)}
+            <>
+              <div className={styles.tableHead} aria-hidden="true">
+                <span>{t("cols.document")}</span>
+                <span>{t("cols.pages")}</span>
+                <span>{t("cols.passages")}</span>
+                <span>{t("cols.added")}</span>
+                <span />
+              </div>
+              <ul className={styles.docList}>
+                {documents.map((doc) => (
+                  <li key={doc.fileName} className={styles.doc} data-new={justAdded.has(doc.fileName) || undefined}>
+                    <div className={styles.docMain}>
+                      <span className={styles.docSpine} aria-hidden="true">
+                        <FilePdf size={20} weight="duotone" />
+                      </span>
+                      <div className={styles.docBody}>
+                        <span className={styles.docName} title={doc.fileName}>
+                          {readableFile(doc.fileName)}
+                        </span>
+                        <span className={styles.docBadge} data-kind={doc.hasFile ? "pdf" : "text"}>
+                          {doc.hasFile ? t("storedPdf") : t("textOnly")}
+                        </span>
+                      </div>
+                    </div>
+
+                    <span className={styles.docCell} data-label={t("cols.pages")}>
+                      {doc.pages ?? "–"}
                     </span>
-                    <span className={styles.docMeta}>
-                      {t("passages", { count: doc.passages })}
-                      {doc.pages != null &&
-                        ` · ${t("pages", { count: doc.pages })}`}
-                      {" · "}
+                    <span className={styles.docCell} data-label={t("cols.passages")}>
+                      {doc.passages}
+                    </span>
+                    <span className={styles.docCell} data-label={t("cols.added")}>
                       {justAdded.has(doc.fileName)
                         ? t("justAdded")
-                        : doc.uploadedAt &&
-                          t("added", {
-                            date: format.dateTime(new Date(doc.uploadedAt), {
+                        : doc.uploadedAt
+                          ? format.dateTime(new Date(doc.uploadedAt), {
                               day: "numeric",
                               month: "short",
                               year: "numeric",
-                            }),
-                          })}
+                            })
+                          : "–"}
                     </span>
-                  </div>
 
-                  {deleting === doc.fileName ? (
-                    <span className={styles.docStatus}>
-                      <span className={styles.spinnerDark} aria-hidden="true" />
-                      {t("deleting")}
-                    </span>
-                  ) : confirming === doc.fileName ? (
-                    <div className={styles.confirm}>
-                      <span>{t("confirmDelete")}</span>
-                      <button
-                        type="button"
-                        className={styles.confirmYes}
-                        onClick={() => handleDelete(doc.fileName)}
-                      >
-                        {t("confirmYes")}
-                      </button>
-                      <button
-                        type="button"
-                        className={styles.linkBtn}
-                        onClick={() => setConfirming(null)}
-                      >
-                        {t("confirmNo")}
-                      </button>
+                    <div className={styles.docActions}>
+                      {deleting === doc.fileName ? (
+                        <span className={styles.docStatus}>
+                          <span className={styles.spinnerDark} aria-hidden="true" />
+                          {t("deleting")}
+                        </span>
+                      ) : confirming === doc.fileName ? (
+                        <div className={styles.confirm}>
+                          <span>{t("confirmDelete")}</span>
+                          <button type="button" className={styles.confirmYes} onClick={() => handleDelete(doc.fileName)}>
+                            {t("confirmYes")}
+                          </button>
+                          <button type="button" className={styles.linkBtn} onClick={() => setConfirming(null)}>
+                            {t("confirmNo")}
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <button type="button" className={styles.rowBtn} onClick={() => setViewing(doc.fileName)}>
+                            <Eye size={15} aria-hidden="true" />
+                            {t("view")}
+                          </button>
+                          <button
+                            type="button"
+                            className={`${styles.rowBtn} ${styles.rowBtnDanger}`}
+                            onClick={() => setConfirming(doc.fileName)}
+                            aria-label={`${t("delete")}: ${doc.fileName}`}
+                          >
+                            <Trash size={15} aria-hidden="true" />
+                            <span className={styles.rowBtnText}>{t("delete")}</span>
+                          </button>
+                        </>
+                      )}
                     </div>
-                  ) : justAdded.has(doc.fileName) ? (
-                    <span className={styles.docNew}>
-                      <Check size={14} weight="bold" aria-hidden="true" />
-                    </span>
-                  ) : (
-                    <button
-                      type="button"
-                      className={styles.iconBtn}
-                      aria-label={`${t("delete")}: ${doc.fileName}`}
-                      title={t("delete")}
-                      onClick={() => setConfirming(doc.fileName)}
-                    >
-                      <Trash size={16} />
-                    </button>
-                  )}
-                </li>
-              ))}
-            </ul>
+                  </li>
+                ))}
+              </ul>
+            </>
           )}
         </section>
       </div>
+
+      <UploadPanel
+        open={panelOpen}
+        onClose={() => setPanelOpen(false)}
+        files={selectedFiles}
+        onAddFiles={addFiles}
+        onRemoveFile={(idx) => setSelectedFiles((prev) => prev.filter((_, i) => i !== idx))}
+        onClear={() => setSelectedFiles([])}
+        onUpload={handleUpload}
+        uploading={uploading}
+        error={uploadError}
+        lastUpload={lastUpload}
+        onView={(fileName) => {
+          setPanelOpen(false);
+          setViewing(fileName);
+        }}
+      />
+
+      {viewingDoc && (
+        <DocumentViewer key={viewingDoc.fileName} doc={viewingDoc} onClose={() => setViewing(null)} />
+      )}
     </AppShell>
   );
 }
