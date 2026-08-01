@@ -71,19 +71,18 @@ export default function AdminPage() {
     getDocuments().then(applyDocuments);
   }, [session, isAdminSession, router, applyDocuments]);
 
-  /* ───── Choosing files ───── */
+  /* ───── Choosing & uploading ───── */
 
   const addFiles = useCallback((newFiles: File[]) => {
     const pdfs = newFiles.filter(
-      (f) =>
-        f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf"),
+      (f) => f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf"),
     );
     if (pdfs.length === 0) {
-      setError("notPdf");
+      setUploadError("notPdf");
       return;
     }
     const valid = pdfs.filter((f) => f.size <= MAX_FILE_SIZE);
-    setError(valid.length < pdfs.length ? "tooLarge" : null);
+    setUploadError(valid.length < pdfs.length ? "tooLarge" : null);
     setSelectedFiles((prev) => {
       const existing = new Set(prev.map((f) => f.name + f.size));
       return [...prev, ...valid.filter((f) => !existing.has(f.name + f.size))];
