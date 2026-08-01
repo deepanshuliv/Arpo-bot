@@ -162,165 +162,43 @@ export default function AdminPage() {
         </div>
       )}
 
-      <div className={styles.content}>
-        <section className={styles.workArea} aria-labelledby="upload-title">
-          <header>
-            <h2 id="upload-title" className={styles.heading}>
-              {t("title")}
-            </h2>
+      <div className={styles.dashboard}>
+        <header className={styles.dashHead}>
+          <div>
+            <h2 className={styles.heading}>{t("title")}</h2>
             <p className={styles.subtitle}>{t("subtitle")}</p>
-          </header>
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".pdf"
-            multiple
-            hidden
-            onChange={(e) => {
-              if (e.target.files) addFiles(Array.from(e.target.files));
-              e.target.value = "";
-            }}
-          />
-
-          <div
-            className={`${styles.dropZone} ${selectedFiles.length > 0 ? styles.dropZoneActive : ""}`}
-          >
-            {selectedFiles.length === 0 ? (
-              <button
-                type="button"
-                className={styles.dropZoneEmpty}
-                onClick={openPicker}
-              >
-                <span className={styles.dropZoneIcon}>
-                  <UploadSimple size={22} weight="bold" aria-hidden="true" />
-                </span>
-                <span className={styles.dropZoneTitle}>
-                  {t.rich("dropTitle", { u: (chunks) => <u>{chunks}</u> })}
-                </span>
-                <span className={styles.dropZoneSub}>{t("dropSub")}</span>
-              </button>
-            ) : (
-              <div className={styles.fileList}>
-                <div className={styles.fileListHeader}>
-                  <span>{t("ready", { count: selectedFiles.length })}</span>
-                  <button
-                    type="button"
-                    className={styles.linkBtn}
-                    onClick={openPicker}
-                  >
-                    <Plus size={14} weight="bold" aria-hidden="true" />
-                    {t("addMore")}
-                  </button>
-                </div>
-                <ul>
-                  {selectedFiles.map((file, idx) => (
-                    <li key={`${file.name}-${idx}`} className={styles.fileItem}>
-                      <FilePdf
-                        size={22}
-                        className={styles.fileIcon}
-                        aria-hidden="true"
-                      />
-                      <span className={styles.fileName}>{file.name}</span>
-                      <span className={styles.fileSize}>
-                        {formatFileSize(file.size)}
-                      </span>
-                      <button
-                        type="button"
-                        className={styles.iconBtn}
-                        aria-label={t("remove", { name: file.name })}
-                        onClick={() =>
-                          setSelectedFiles((prev) =>
-                            prev.filter((_, i) => i !== idx),
-                          )
-                        }
-                        disabled={uploading}
-                      >
-                        <X size={14} weight="bold" />
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
           </div>
+          <button type="button" className={`btn-primary ${styles.uploadBtn}`} onClick={() => setPanelOpen(true)}>
+            <UploadSimple size={17} weight="bold" aria-hidden="true" />
+            {t("uploadButton")}
+          </button>
+        </header>
 
-          {error && (
-            <p className={styles.errorBanner} role="alert">
-              <Warning size={16} weight="fill" aria-hidden="true" />
-              {t(`errors.${error}`)}
-            </p>
-          )}
-
-          <div className={styles.actions}>
-            {selectedFiles.length > 0 && (
-              <button
-                type="button"
-                className="btn-secondary"
-                onClick={() => setSelectedFiles([])}
-                disabled={uploading}
-              >
-                {t("clearAll")}
-              </button>
-            )}
-            <button
-              type="button"
-              className={`${styles.uploadBtn} btn-primary`}
-              onClick={handleUpload}
-              disabled={selectedFiles.length === 0 || uploading}
-            >
-              {uploading ? (
-                <>
-                  <span className={styles.spinner} aria-hidden="true" />
-                  {t("indexing", { count: selectedFiles.length })}
-                </>
-              ) : (
-                <>
-                  {t("upload")}
-                  {selectedFiles.length > 0 && (
-                    <span className={styles.uploadCount}>
-                      {selectedFiles.length}
-                    </span>
-                  )}
-                </>
-              )}
-            </button>
+        <dl className={styles.stats}>
+          <div>
+            <dt>{t("stats.documents")}</dt>
+            <dd>{documents ? documents.length : "–"}</dd>
           </div>
+          <div>
+            <dt>{t("stats.passages")}</dt>
+            <dd>{documents ? totalPassages : "–"}</dd>
+          </div>
+          <div>
+            <dt>{t("stats.pages")}</dt>
+            <dd>{documents ? totalPages : "–"}</dd>
+          </div>
+        </dl>
 
-          {lastUpload?.files.some((f) => f.status === "failed") && (
-            <ul className={styles.failedList}>
-              {lastUpload.files
-                .filter((f) => f.status === "failed")
-                .map((f) => (
-                  <li key={f.fileName}>
-                    <Warning size={14} aria-hidden="true" />
-                    <span>{f.fileName}</span>
-                    <span>{f.error || t("failedFile")}</span>
-                  </li>
-                ))}
-            </ul>
-          )}
-        </section>
+        {listError && (
+          <p className={styles.errorBanner} role="alert">
+            <Warning size={16} weight="fill" aria-hidden="true" />
+            {t(`errors.${listError}`)}
+          </p>
+        )}
 
-        <section className={styles.library} aria-labelledby="library-title">
-          <header className={styles.libraryHead}>
-            <h2 id="library-title">{t("library")}</h2>
-            {documents && documents.length > 0 && (
-              <span>
-                {t("librarySummary", {
-                  docs: documents.length,
-                  passages: totalPassages,
-                })}
-              </span>
-            )}
-          </header>
-
+        <section className={styles.library} aria-label={t("library")}>
           {documents === null ? (
-            <div
-              className={styles.librarySkeleton}
-              aria-busy="true"
-              aria-label={t("libraryLoading")}
-            >
+            <div className={styles.skeleton} aria-busy="true" aria-label={t("libraryLoading")}>
               <span />
               <span />
               <span />
