@@ -89,6 +89,23 @@ export default function AdminPage() {
     });
   }, []);
 
+  const handleUpload = async () => {
+    if (selectedFiles.length === 0) return;
+    setUploading(true);
+    setUploadError(null);
+    const res = await uploadPdfs(selectedFiles);
+    setUploading(false);
+
+    if (res.success && res.data) {
+      setLastUpload(res.data);
+      setSelectedFiles([]);
+      loadDocuments();
+    } else {
+      setUploadError(res.code === "NETWORK" ? "network" : "uploadFailed");
+    }
+  };
+
+  // Dropping PDFs anywhere on the page opens the upload panel with them
   const dragHandlers = {
     onDragEnter: (e: React.DragEvent) => {
       e.preventDefault();
