@@ -134,28 +134,21 @@ export default function AdminPage() {
     setDeleting(fileName);
     const res = await deleteDocument(fileName);
     setDeleting(null);
-    if (res.success) {
-      loadDocuments();
-    } else {
-      setError(res.code === "NETWORK" ? "network" : "deleteFailed");
-    }
+    if (res.success) loadDocuments();
+    else setListError(res.code === "NETWORK" ? "network" : "deleteFailed");
   };
 
   const justAdded = new Set(
-    lastUpload?.files
-      .filter((f) => f.status === "success")
-      .map((f) => f.fileName) ?? [],
+    lastUpload?.files.filter((f) => f.status === "success").map((f) => f.fileName) ?? [],
   );
-
-  /* ───── Sidebar ───── */
-
-  const sidebar = <AdminNav />;
+  const totalPages = documents?.reduce((sum, d) => sum + (d.pages ?? 0), 0) ?? 0;
+  const viewingDoc = documents?.find((d) => d.fileName === viewing) ?? null;
 
   return (
     <AppShell
-      sidebar={sidebar}
+      sidebar={<AdminNav />}
       title={t("title")}
-      userName={userName}
+      userName={session?.name ?? ""}
       signOutTo="/admin/auth"
       mainProps={dragHandlers}
     >
