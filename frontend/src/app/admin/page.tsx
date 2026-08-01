@@ -123,29 +123,11 @@ export default function AdminPage() {
       dragCounterRef.current = 0;
       setIsDragging(false);
       addFiles(Array.from(e.dataTransfer.files));
+      setPanelOpen(true);
     },
   };
 
-  const openPicker = () => fileInputRef.current?.click();
-
-  /* ───── Upload & delete ───── */
-
-  const handleUpload = async () => {
-    if (selectedFiles.length === 0) return;
-    setUploading(true);
-    setError(null);
-
-    const res = await uploadPdfs(selectedFiles);
-    setUploading(false);
-
-    if (res.success && res.data) {
-      setLastUpload(res.data);
-      setSelectedFiles([]);
-      loadDocuments();
-    } else {
-      setError(res.code === "NETWORK" ? "network" : "uploadFailed");
-    }
-  };
+  /* ───── Deleting ───── */
 
   const handleDelete = async (fileName: string) => {
     setConfirming(null);
