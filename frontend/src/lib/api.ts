@@ -1,8 +1,5 @@
-// ===== API Helper — Simple Version =====
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
-
-// ── Types (used by other files) ──
 
 export interface SourceDoc {
   confidenceScore: string;
@@ -22,8 +19,6 @@ export interface PdfUploadResult {
     error?: string;
   }>;
 }
-
-// ── Auth ──
 
 export async function signUp(name: string, email: string, password: string) {
   const res = await fetch(API_BASE + "/api/v1/signup", {
@@ -52,8 +47,6 @@ export async function adminSignIn(email: string, password: string) {
   return res.json();
 }
 
-// ── Chat ──
-
 export async function sendMessage(
   message: string,
   role: string = "user",
@@ -61,7 +54,6 @@ export async function sendMessage(
 ) {
   const token = localStorage.getItem("arpo_token");
 
-  // If there's an image, send as FormData (multipart)
   if (imageFile) {
     const formData = new FormData();
     formData.append("image", imageFile);
@@ -73,14 +65,13 @@ export async function sendMessage(
       method: "POST",
       headers: {
         Authorization: "Bearer " + token,
-        // No Content-Type here — browser sets it for FormData
+
       },
       body: formData,
     });
     return res.json();
   }
 
-  // Normal text message
   const res = await fetch(API_BASE + "/api/v1/chats", {
     method: "POST",
     headers: {
@@ -116,8 +107,6 @@ export async function getLimitStatus() {
   return res.json();
 }
 
-// ── Admin — PDF Upload ──
-
 export async function uploadPdfs(files: File[]) {
   const token = localStorage.getItem("arpo_token");
   const formData = new FormData();
@@ -129,7 +118,7 @@ export async function uploadPdfs(files: File[]) {
     method: "POST",
     headers: {
       Authorization: "Bearer " + token,
-      // No Content-Type here — browser sets it for FormData
+
     },
     body: formData,
   });

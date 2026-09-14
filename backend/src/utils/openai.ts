@@ -9,7 +9,6 @@ const openai = new OpenAI({
   baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
 });
 
-// ─── Retry Helper for 429s ───
 async function withRetry<T>(
   fn: () => Promise<T>,
   maxRetries = 3,
@@ -21,7 +20,7 @@ async function withRetry<T>(
       return await fn();
     } catch (error: any) {
       lastError = error;
-      // 429 is Rate Limit, 503/504 are temporary service issues
+
       if (
         error?.status === 429 ||
         error?.status === 503 ||
@@ -86,14 +85,6 @@ function formatContext(docs: RetrivedDocs[]): string {
     .join("\n\n");
 }
 
-// ═══════════════════════════════════════════════════════════════
-// MAIN SYSTEM PROMPT — All 4 features integrated:
-//   1. Dispute Settler (Citation Engine)
-//   2. Visual Badge Identity
-//   3. Syllabus Tracker (Ordered Checklists)
-//   4. Hinglish / Hindi Support
-// ═══════════════════════════════════════════════════════════════
-
 const SYSTEM_PROMPT_TEMPLATE = `You are ARPO, the official Scout & Guide AI assistant for Bharat Scouts and Guides (BSG India). You ONLY answer based on the uploaded documents.
 
 ⚠️ LANGUAGE RULE ⚠️
@@ -132,7 +123,6 @@ export async function callLlm({
     },
   ];
 
-  // Add conversation history if available
   if (history && history.length > 0) {
     history.forEach((msg) => {
       messages.push({
@@ -233,4 +223,3 @@ export async function describeImage(imagePath: string): Promise<string | null> {
   }
 }
 
-export async function callEmbedModel() {}

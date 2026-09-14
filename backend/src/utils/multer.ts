@@ -6,7 +6,6 @@ import { existsSync, mkdirSync } from "node:fs";
 const imagedDir = path.join(process.cwd(), "src", "assests", "image");
 const pdfDir = path.join(process.cwd(), "src", "assests", "pdf");
 
-// Ensure directories exist
 if (!existsSync(imagedDir)) mkdirSync(imagedDir, { recursive: true });
 if (!existsSync(pdfDir)) mkdirSync(pdfDir, { recursive: true });
 
@@ -25,7 +24,6 @@ const storage = multer.diskStorage({
   },
 });
 
-// File filter: only allow PDFs and images
 const fileFilter: multer.Options["fileFilter"] = (req, file, cb) => {
   const allowedMimes = [
     "application/pdf",
@@ -48,12 +46,11 @@ const upload = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 20 * 1024 * 1024, // 20 MB per file
-    files: 10, // max 10 files per request
+    fileSize: 20 * 1024 * 1024, 
+    files: 10, 
   },
 });
 
-// Immediately delete a single file after you're done processing it
 export function deleteFile(filePath: string) {
   fs.unlink(filePath, (err) => {
     if (err) {
@@ -64,10 +61,9 @@ export function deleteFile(filePath: string) {
   });
 }
 
-// Safety net: delete any files older than maxAgeMs (default: 1 hour)
 export function startCleanupScheduler(
-  intervalMs: number = 30 * 60 * 1000, // run every 30 minutes
-  maxAgeMs: number = 60 * 60 * 1000, // delete files older than 1 hour
+  intervalMs: number = 30 * 60 * 1000, 
+  maxAgeMs: number = 60 * 60 * 1000, 
 ) {
   setInterval(() => {
     fs.readdir(imagedDir, (err, files) => {

@@ -6,11 +6,11 @@ import s from "./landing.module.css";
 export default function LandingPage() {
   return (
     <div className={s.page}>
-      {/* Ambient background effects */}
+      {}
       <div className={s.ambientGlow} />
       <div className={s.gridPattern} />
 
-      {/* ─── Navbar ─── */}
+      {}
       <nav className={s.nav}>
         <div className={s.navInner}>
           <div className={s.navBrand}>
@@ -31,15 +31,15 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* ─── Hero ─── */}
+      {}
       <section className={s.hero}>
-        {/* Pill badge */}
+        {}
         <div className={s.heroBadge}>
           <span className={s.heroBadgeDot} />
           <span className={s.heroBadgeText}>AI Scout Assistant</span>
         </div>
 
-        {/* Title */}
+        {}
         <h1 className={s.heroTitle}>
           <span className={s.heroGradientText}>
             Master the Art of
@@ -48,14 +48,14 @@ export default function LandingPage() {
           </span>
         </h1>
 
-        {/* Description */}
+        {}
         <p className={s.heroDesc}>
           Your intelligent companion for the{" "}
           <strong>Bharat Scouts &amp; Guides</strong>. Instant access to
           verified protocols, badge requirements, and field guides.
         </p>
 
-        {/* Buttons */}
+        {}
         <div className={s.heroButtons}>
           <Link href="/auth" className={s.heroBtnLaunch}>
             <span className={s.heroBtnIcon}>
@@ -79,7 +79,7 @@ export default function LandingPage() {
           </Link>
         </div>
 
-        {/* Trust line */}
+        {}
         <p className={s.heroTrust}>
           <svg
             width="14"
@@ -98,10 +98,10 @@ export default function LandingPage() {
         </p>
       </section>
 
-      {/* ─── Features ─── */}
+      {}
       <section className={s.features}>
         <div className={s.featuresGrid}>
-          {/* Feature 1 */}
+          {}
           <div className={s.featureCard}>
             <div className={s.featureIconOrange}>01</div>
             <h3 className={s.featureTitle}>Verified Knowledge</h3>
@@ -111,7 +111,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* Feature 2 */}
+          {}
           <div className={s.featureCard}>
             <div className={s.featureIconWhite}>02</div>
             <h3 className={s.featureTitle}>Badge Tracker</h3>
@@ -121,7 +121,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* Feature 3 */}
+          {}
           <div className={s.featureCard}>
             <div className={s.featureIconGreen}>03</div>
             <h3 className={s.featureTitle}>Field Ready</h3>
@@ -133,7 +133,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── Footer ─── */}
+      {}
       <footer className={s.footer}>
         <p className={s.footerText}>
           © 2024 ARPO Bot • Built for Bharat Scouts &amp; Guides

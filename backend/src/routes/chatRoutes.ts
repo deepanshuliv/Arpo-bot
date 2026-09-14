@@ -7,16 +7,14 @@ import upload, { deleteFile } from "../utils/multer";
 import { authMiddleware } from "../utils/middleware";
 import rateLimit from "express-rate-limit";
 
-// Rate limiters work best when they know the user.
-// We will use the userId as the key and check the role for the limit.
 const chatLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
+  windowMs: 60 * 60 * 1000, 
   limit: (req: any) => {
-    // Admins get 1000 requests, regular users get 5
+
     if (req.userRole === "admin") return 1000;
     return 5;
   },
-  // Use the userId from authMiddleware as the unique key
+
   keyGenerator: (req: any) => req.userId || req.ip,
   handler: (req: any, res: Response) => {
     const resetTime = req.rateLimit.resetTime;
@@ -47,23 +45,20 @@ export interface RetrivedDocs {
   chunkIndex: number | null;
 }
 
-// ─── Helper: Get or create a default thread for the user ───
 async function getOrCreateThread(userId: string) {
-  // Check if user already has a thread
+
   const user = await Users.findById(userId);
   if (user?.thread_id && user.thread_id.length > 0) {
     const thread = await Threads.findById(user.thread_id[0]);
     if (thread) return thread;
   }
 
-  // Create a new default thread
   const thread = await Threads.create({
     title: "Default Chat",
     messages: [],
     authors: [userId],
   });
 
-  // Link thread to user
   await Users.findByIdAndUpdate(userId, {
     $push: { thread_id: thread._id },
   });
@@ -71,7 +66,6 @@ async function getOrCreateThread(userId: string) {
   return thread;
 }
 
-// ─── GET /chats — Fetch previous messages for the logged-in user ───
 chatRouter.get(
   "/chats",
   authMiddleware,
@@ -88,7 +82,6 @@ chatRouter.get(
 
       const thread = await getOrCreateThread(userId);
 
-      // Fetch all messages belonging to this thread, sorted by creation time
       const messages = await Messages.find({ thread_id: thread._id }).sort({
         createdAt: 1,
       });
@@ -116,13 +109,12 @@ chatRouter.get(
   },
 );
 
-// ─── GET /limit-status — Get current user's remaining questions ───
 chatRouter.get("/limit-status", authMiddleware, (req: any, res: Response) => {
   res.status(200).json({
     success: true,
     data: {
       role: req.userRole,
-      // Since this route doesn't use the limiter middleware, we just show the rules
+
       limit: req.userRole === "admin" ? "Unlimited" : 5,
       remaining:
         req.userRole === "admin"
@@ -132,11 +124,10 @@ chatRouter.get("/limit-status", authMiddleware, (req: any, res: Response) => {
   });
 });
 
-// ─── POST /chats — Send a message and get AI response ───
 chatRouter.post(
   "/chats",
-  authMiddleware, // First authenticate to get userId/role
-  chatLimiter, // Then apply the dynamic rate limit
+  authMiddleware, 
+  chatLimiter, 
   upload.single("image"),
   async (req: Request, res: Response) => {
     try {
@@ -159,26 +150,22 @@ chatRouter.post(
       const { messageType, message, role } = data;
       const imagePath = req.file?.path;
 
-      // Get or create the user's thread
       const thread = await getOrCreateThread(userId);
 
-      // Step 1: Save the user's message to MongoDB (linked to thread)
       const saveUserMessage = await Messages.create({
         role,
         message_description: message,
         thread_id: thread._id,
       });
 
-      // Add message to thread
       await Threads.findByIdAndUpdate(thread._id, {
         $push: { messages: saveUserMessage._id },
       });
 
-      // Step 2: Determine the search query for the vector store
       let searchQuery: string;
 
       if (messageType === "image" && imagePath) {
-        // Image flow: LLM describes the image first, use that as the search query
+
         const imageDescription = await describeImage(imagePath);
         if (!imageDescription) {
           return res.status(500).json({
@@ -186,14 +173,14 @@ chatRouter.post(
             message: "Failed to analyze the image",
           });
         }
-        // Combine image description with user's text message (if any) for a richer search
+
         searchQuery = message
           ? `${message} ${imageDescription}`
           : imageDescription;
 
         console.log("[Image Search Query]:", searchQuery);
       } else {
-        // Text flow: use the user's message directly
+
         if (!message) {
           return res.status(400).json({
             success: false,
@@ -203,7 +190,6 @@ chatRouter.post(
         searchQuery = message;
       }
 
-      // Step 3: Vector similarity search in Pinecone (fetch 8 for better coverage)
       const retrivedDocs: RetrivedDocs[] = [];
       const similaritySearchWithScoreResults =
         await vectorStore.similaritySearchWithScore(searchQuery, 8);
@@ -222,10 +208,9 @@ chatRouter.post(
         });
       }
 
-      // Step 4: Fetch conversation history (last 5 messages) to provide context
       const previousMessages = await Messages.find({ thread_id: thread._id })
         .sort({ createdAt: -1 })
-        .skip(1) // skip the message we just saved
+        .skip(1) 
         .limit(6);
 
       const history = previousMessages.reverse().map((m) => ({
@@ -251,24 +236,20 @@ chatRouter.post(
         });
       }
 
-      // Step 5: Save the agent's response to MongoDB (linked to thread)
       const saveAgentMessage = await Messages.create({
         role: "agent",
         message_description: llmResponse,
         thread_id: thread._id,
       });
 
-      // Add agent message to thread
       await Threads.findByIdAndUpdate(thread._id, {
         $push: { messages: saveAgentMessage._id },
       });
 
-      // Step 6: Cleanup uploaded file
       if (imagePath) {
         deleteFile(imagePath);
       }
 
-      // Step 7: Return the response
       return res.status(200).json({
         success: true,
         data: {
@@ -279,7 +260,7 @@ chatRouter.post(
         },
       });
     } catch (error) {
-      // Cleanup file on error too
+
       if (req.file?.path) {
         deleteFile(req.file.path);
       }

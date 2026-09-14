@@ -6,7 +6,6 @@ import { vectorStore } from "../utils/vector";
 
 const pineConeRouter = Router();
 
-// POST /pdf — Upload and index PDFs into Pinecone
 pineConeRouter.post(
   "/pdf",
   authMiddleware,
@@ -30,10 +29,9 @@ pineConeRouter.post(
 
       for (const file of files) {
         try {
-          // 1. Process PDF (split into chunks)
+
           const docs = await processPdf(file.path, file.originalname);
 
-          // 2. Add to Pinecone
           await vectorStore.addDocuments(docs);
 
           totalChunks += docs.length;
@@ -51,7 +49,7 @@ pineConeRouter.post(
             error: err.message || "Failed to index",
           });
         } finally {
-          // 3. Cleanup: delete file from local storage
+
           deleteFile(file.path);
         }
       }

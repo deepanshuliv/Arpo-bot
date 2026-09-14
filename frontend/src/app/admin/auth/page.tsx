@@ -39,11 +39,11 @@ export default function AdminAuthPage() {
 
   return (
     <div className={styles.container}>
-      {/* Background grid */}
+      {}
       <div className={styles.gridBg} />
 
       <div className={styles.card}>
-        {/* Admin badge */}
+        {}
         <div className={styles.adminBadge}>
           <svg
             width="14"
@@ -60,7 +60,7 @@ export default function AdminAuthPage() {
           Admin Only
         </div>
 
-        {/* Logo */}
+        {}
         <div className={styles.logoSection}>
           <div className={styles.logoIcon}>
             <svg
@@ -82,7 +82,7 @@ export default function AdminAuthPage() {
           <p className={styles.logoSub}>Admin Panel</p>
         </div>
 
-        {/* Info bar */}
+        {}
         <div className={styles.infoBar}>
           <svg
             width="14"
@@ -102,7 +102,7 @@ export default function AdminAuthPage() {
           </span>
         </div>
 
-        {/* Form */}
+        {}
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.field}>
             <label className={styles.label}>Admin Email</label>
@@ -152,7 +152,7 @@ export default function AdminAuthPage() {
           </button>
         </form>
 
-        {/* Footer */}
+        {}
         <p className={styles.footer}>
           Not an admin?{" "}
           <button

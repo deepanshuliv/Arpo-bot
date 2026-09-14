@@ -16,6 +16,3 @@ export const MessageSchema = z.object({
   messageType: z.enum(["image", "text"]),
 });
 
-export const newThread = z.object({
-  title: z.string(),
-});

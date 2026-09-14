@@ -31,7 +31,6 @@ export default function AuthPage() {
           localStorage.setItem("arpo_name", res.data.name);
         }
 
-        // Redirect admins to admin page, regular users to chat
         if (res.data.role === "admin") {
           router.push("/admin");
         } else {
@@ -49,11 +48,11 @@ export default function AuthPage() {
 
   return (
     <div className={styles.container}>
-      {/* Background grid effect */}
+      {}
       <div className={styles.gridBg} />
 
       <div className={styles.card}>
-        {/* Logo */}
+        {}
         <div className={styles.logoSection}>
           <div className={styles.logoIcon}>
             <svg
@@ -75,7 +74,7 @@ export default function AuthPage() {
           <p className={styles.logoSub}>Scout Master AI</p>
         </div>
 
-        {/* Tab switcher */}
+        {}
         <div className={styles.tabBar}>
           <button
             className={`${styles.tab} ${!isSignUp ? styles.tabActive : ""}`}

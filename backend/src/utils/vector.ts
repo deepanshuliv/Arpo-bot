@@ -3,9 +3,6 @@ import { Pinecone as PineconeClient } from "@pinecone-database/pinecone";
 import { Embeddings, type EmbeddingsParams } from "@langchain/core/embeddings";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// ─── Custom Embeddings Wrapper ───
-// Uses gemini-embedding-001 with outputDimensionality=768
-// to match the existing Pinecone index dimension
 interface GeminiEmbeddingsConfig extends EmbeddingsParams {
   apiKey: string;
   modelName?: string;
@@ -27,8 +24,6 @@ class GeminiEmbeddings768 extends Embeddings {
   async embedDocuments(texts: string[]): Promise<number[][]> {
     const model = this.client.getGenerativeModel({ model: this.modelName });
 
-    // embedContent supports outputDimensionality but batchEmbedContents does NOT
-    // So we embed individually with concurrency for speed
     const concurrency = 5;
     const allEmbeddings: number[][] = [];
 
@@ -60,14 +55,12 @@ class GeminiEmbeddings768 extends Embeddings {
   }
 }
 
-// ─── Initialize embeddings with 768 dimensions ───
 export const embeddings = new GeminiEmbeddings768({
   apiKey: process.env.GOOGLE_API_KEY!,
   modelName: "gemini-embedding-001",
   dimensions: 768,
 });
 
-// ─── Initialize Pinecone ───
 const pinecone = new PineconeClient();
 const pineconeIndex = pinecone.Index(
   process.env.PINECONE_INDEX!,

@@ -114,7 +114,6 @@ userRouter.post("/signup", async (req: Request, res: Response) => {
   }
 });
 
-// ─── Admin Sign In (rejects non-admin users) ───
 userRouter.post("/admin/signin", async (req: Request, res: Response) => {
   console.log("[INFO] in admin signin route");
   try {
@@ -136,7 +135,6 @@ userRouter.post("/admin/signin", async (req: Request, res: Response) => {
       });
     }
 
-    // Check admin role BEFORE password verification
     if (user.role !== "admin") {
       return res.status(403).json({
         success: false,

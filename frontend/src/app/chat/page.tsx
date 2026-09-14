@@ -45,7 +45,6 @@ export default function ChatPage() {
     const role = localStorage.getItem("arpo_role");
     setIsAdmin(role === "admin");
 
-    // Load previous chat history from MongoDB
     async function loadChatHistory() {
       try {
         const res = await getMessages();
@@ -91,7 +90,6 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // ─── Drag & Drop Handlers ───
   const handleFile = useCallback((file: File) => {
     if (!file.type.startsWith("image/")) return;
     setImageFile(file);
@@ -141,7 +139,6 @@ export default function ChatPage() {
     [handleFile],
   );
 
-  // ─── Paste Handler (Ctrl+V / Cmd+V images) ───
   const handlePaste = useCallback(
     (e: React.ClipboardEvent) => {
       const items = e.clipboardData?.items;
@@ -207,11 +204,10 @@ export default function ChatPage() {
 
       setMessages((prev) => [...prev, agentMsg]);
 
-      // Refresh limit status
       const limitRes = await getLimitStatus();
       if (limitRes.success) setUsage(limitRes.data);
     } catch (err: any) {
-      // If error is 429 (Rate Limit), use the message from server
+
       const errorMsg: Message = {
         id: (Date.now() + 1).toString(),
         role: "agent",
@@ -252,7 +248,7 @@ export default function ChatPage() {
       onDragOver={handleDragOver}
       onDrop={handleDrop}
     >
-      {/* Drag overlay */}
+      {}
       {isDragging && (
         <div className={styles.dragOverlay}>
           <div className={styles.dragOverlayContent}>
@@ -278,7 +274,7 @@ export default function ChatPage() {
         </div>
       )}
 
-      {/* Sidebar */}
+      {}
       <aside className={styles.sidebar}>
         <div className={styles.sidebarHeader}>
           <div className={styles.logoRow}>
@@ -342,7 +338,7 @@ export default function ChatPage() {
           </button>
         )}
 
-        {/* ─── Usage Tracker ─── */}
+        {}
         <div className={styles.usageTracker}>
           <div className={styles.usageHeader}>
             <span className={styles.usageTitle}>Monthly Usage</span>
@@ -390,9 +386,9 @@ export default function ChatPage() {
         </div>
       </aside>
 
-      {/* Main chat area */}
+      {}
       <main className={styles.main} onPaste={handlePaste}>
-        {/* Messages */}
+        {}
         <div className={styles.messagesContainer}>
           {loadingHistory ? (
             <div className={styles.emptyState}>
@@ -511,7 +507,7 @@ export default function ChatPage() {
                     )}
                     <p className={styles.messageText}>{msg.content}</p>
 
-                    {/* Sources */}
+                    {}
                     {msg.sources && msg.sources.length > 0 && (
                       <div className={styles.sourcesSection}>
                         <button
@@ -645,7 +641,7 @@ export default function ChatPage() {
           )}
         </div>
 
-        {/* Input area */}
+        {}
         <div className={styles.inputArea}>
           {imagePreview && (
             <div className={styles.imagePreviewBar}>

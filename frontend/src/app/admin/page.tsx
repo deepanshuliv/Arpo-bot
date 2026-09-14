@@ -35,7 +35,6 @@ export default function AdminPage() {
     }
   }, [router]);
 
-  // ─── Drag & Drop ───
   const handleDragEnter = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -95,7 +94,7 @@ export default function AdminPage() {
     if (files) {
       addFiles(Array.from(files));
     }
-    // Reset input so re-selecting the same file works
+
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -159,7 +158,7 @@ export default function AdminPage() {
       onDragOver={handleDragOver}
       onDrop={handleDrop}
     >
-      {/* Drag overlay */}
+      {}
       {isDragging && (
         <div className={styles.dragOverlay}>
           <div className={styles.dragOverlayContent}>
@@ -188,7 +187,7 @@ export default function AdminPage() {
       )}
 
       <div className={styles.container}>
-        {/* Header */}
+        {}
         <div className={styles.header}>
           <div className={styles.headerIcon}>
             <svg
@@ -212,7 +211,7 @@ export default function AdminPage() {
           </p>
         </div>
 
-        {/* Drop zone */}
+        {}
         <div
           className={`${styles.dropZone} ${selectedFiles.length > 0 ? styles.dropZoneActive : ""}`}
           onClick={() => fileInputRef.current?.click()}
@@ -320,7 +319,7 @@ export default function AdminPage() {
           )}
         </div>
 
-        {/* Actions */}
+        {}
         <div className={styles.actions}>
           {selectedFiles.length > 0 && (
             <button
@@ -362,7 +361,7 @@ export default function AdminPage() {
           </button>
         </div>
 
-        {/* Error */}
+        {}
         {error && (
           <div className={styles.errorBanner}>
             <svg
@@ -381,7 +380,7 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* Upload History */}
+        {}
         {history.length > 0 && (
           <div className={styles.historySection}>
             <h3 className={styles.historyTitle}>Recent Uploads</h3>
@@ -423,7 +422,7 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* Back to chat */}
+        {}
         <button className={styles.backBtn} onClick={() => router.push("/chat")}>
           ← Back to Chat
         </button>
