@@ -22,6 +22,7 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@langchain/community": "^1.1.16",
     "@langchain/core": "^1.1.26",
     "@langchain/pinecone": "^1.0.1",
@@ -34,6 +35,7 @@
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.2.1",
     "multer": "^2.0.2",
+    "openai": "^6.22.0",
     "pdf-parse": "^1",
     "zod": "^4.3.6"
   }
