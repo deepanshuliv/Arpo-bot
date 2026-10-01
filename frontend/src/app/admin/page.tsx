@@ -319,7 +319,12 @@ export default function AdminPage() {
       />
 
       {viewingDoc && (
-        <DocumentViewer key={viewingDoc.fileName} doc={viewingDoc} onClose={() => setViewing(null)} />
+        <DocumentViewer
+          key={viewingDoc.fileName}
+          doc={viewingDoc}
+          onClose={() => setViewing(null)}
+          onAttached={loadDocuments}
+        />
       )}
     </AppShell>
   );

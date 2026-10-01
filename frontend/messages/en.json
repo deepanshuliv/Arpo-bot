@@ -297,14 +297,12 @@
       "indexed": "{count, plural, one {# passage indexed} other {# passages indexed}}"
     },
     "viewer": {
-      "tabPdf": "PDF",
-      "tabText": "Text ARPO uses",
-      "loadingPdf": "Opening the PDF",
-      "loadingText": "Loading the text",
-      "noPdfTitle": "Only the text is available",
-      "noPdf": "This document was uploaded before ARPO kept original files. Upload it again to view the PDF here.",
-      "page": "Page {page}",
-      "noPage": "Unnumbered",
+      "loadingPdf": "Opening the document",
+      "noPdfTitle": "The original PDF isn’t stored yet",
+      "noPdf": "{file} was uploaded before ARPO kept original files. Choose the same PDF from your computer to view it here — it won’t be indexed again.",
+      "attach": "Choose the PDF",
+      "attaching": "Saving the PDF",
+      "attachFailed": "We couldn’t save that PDF. Please try again.",
       "openNewTab": "Open in new tab",
       "close": "Close viewer",
       "failed": "We couldn’t open this document. Please try again."

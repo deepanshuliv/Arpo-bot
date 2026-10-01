@@ -82,12 +82,6 @@ export interface IndexedDocument {
   hasFile: boolean;
 }
 
-export interface DocumentPassage {
-  page: number | null;
-  chunk: number | null;
-  text: string;
-}
-
 export interface PdfUploadResult {
   totalChunks: number;
   files: Array<{
@@ -260,13 +254,6 @@ export function deleteDocument(fileName: string) {
   );
 }
 
-export function getDocumentPassages(fileName: string) {
-  return request<{ fileName: string; passages: DocumentPassage[]; hasFile: boolean }>(
-    `/api/v1/pinecone/documents/passages?fileName=${encodeURIComponent(fileName)}`,
-    { headers: authHeaders() },
-  );
-}
-
 /** The stored PDF as a local object URL for the viewer (caller revokes it). */
 export async function getDocumentFileUrl(
   fileName: string,
@@ -285,6 +272,17 @@ export async function getDocumentFileUrl(
   } catch {
     return { code: "NETWORK" };
   }
+}
+
+/** Keeps the original PDF for a document indexed before originals were stored. */
+export function attachDocumentFile(fileName: string, file: File) {
+  const formData = new FormData();
+  formData.append("pdfFile", file);
+
+  return request<{ fileName: string; hasFile: boolean }>(
+    `/api/v1/pinecone/documents/file?fileName=${encodeURIComponent(fileName)}`,
+    { method: "POST", headers: authHeaders(), body: formData },
+  );
 }
 
 export function uploadPdfs(files: File[]) {
