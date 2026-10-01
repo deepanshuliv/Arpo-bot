@@ -3,7 +3,13 @@ import { authMiddleware, adminMiddleware } from "../utils/middleware";
 import upload, { deleteFile } from "../utils/multer";
 import { processPdf } from "../utils/pdfloader";
 import { pineconeIndex, vectorStore } from "../utils/vector";
-import { hasOriginal, originalPath, removeOriginal, saveOriginal } from "../utils/documentStore";
+import {
+  hasOriginal,
+  openOriginal,
+  removeOriginal,
+  saveOriginal,
+  storedOriginals,
+} from "../utils/documentStore";
 
 const pineConeRouter = Router();
 
@@ -135,13 +141,13 @@ pineConeRouter.get(
   adminMiddleware,
   async (req: Request, res: Response) => {
     try {
-      const documents = await listIndexedDocuments();
+      const [documents, stored] = await Promise.all([listIndexedDocuments(), storedOriginals()]);
       return res.status(200).json({
         success: true,
         data: {
           documents: documents.map(({ ids, ...doc }) => ({
             ...doc,
-            hasFile: hasOriginal(doc.fileName),
+            hasFile: stored.has(doc.fileName),
           })),
           totalPassages: documents.reduce((sum, d) => sum + d.passages, 0),
         },
@@ -207,22 +213,63 @@ pineConeRouter.get(
   "/documents/file",
   authMiddleware,
   adminMiddleware,
-  (req: Request, res: Response) => {
-    const fileName = String(req.query.fileName ?? "");
-    const file = fileName ? originalPath(fileName) : null;
-    if (!file) {
-      return res.status(404).json({
-        success: false,
-        code: "FILE_NOT_STORED",
-        message: "The original file isn't stored. Upload it again to view it.",
-      });
+  async (req: Request, res: Response) => {
+    try {
+      const fileName = String(req.query.fileName ?? "");
+      const file = fileName ? await openOriginal(fileName) : null;
+      if (!file) {
+        return res.status(404).json({
+          success: false,
+          code: "FILE_NOT_STORED",
+          message: "The original file isn't stored. Upload it again to view it.",
+        });
+      }
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Length", String(file.length));
+      res.setHeader(
+        "Content-Disposition",
+        `inline; filename*=UTF-8''${encodeURIComponent(fileName)}`,
+      );
+      file.stream.on("error", () => res.destroy()).pipe(res);
+    } catch (error) {
+      console.log("[ERROR]", error);
+      return res.status(500).json({ success: false, code: "SERVER_ERROR", message: "Could not load the file" });
     }
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader(
-      "Content-Disposition",
-      `inline; filename*=UTF-8''${encodeURIComponent(fileName)}`,
-    );
-    return res.sendFile(file);
+  },
+);
+
+/**
+ * Keeps the original PDF for a document that is already indexed (one uploaded
+ * before originals were stored) without indexing it again.
+ */
+pineConeRouter.post(
+  "/documents/file",
+  authMiddleware,
+  adminMiddleware,
+  upload.single("pdfFile"),
+  async (req: Request, res: Response) => {
+    const file = req.file;
+    try {
+      const fileName = String(req.query.fileName ?? "");
+      if (!fileName || !file || file.mimetype !== "application/pdf") {
+        return res.status(400).json({
+          success: false,
+          code: "INVALID_INPUT",
+          message: "fileName and a PDF file are required",
+        });
+      }
+      const indexed = (await listIndexedDocuments()).some((d) => d.fileName === fileName);
+      if (!indexed) {
+        return res.status(404).json({ success: false, code: "NOT_FOUND", message: "Document not found" });
+      }
+      await saveOriginal(file.path, fileName);
+      return res.status(200).json({ success: true, data: { fileName, hasFile: true } });
+    } catch (error) {
+      console.log("[ERROR]", error);
+      return res.status(500).json({ success: false, code: "SERVER_ERROR", message: "Could not save the file" });
+    } finally {
+      if (file) deleteFile(file.path);
+    }
   },
 );
 
@@ -255,7 +302,7 @@ pineConeRouter.get(
 
       return res.status(200).json({
         success: true,
-        data: { fileName, passages, hasFile: hasOriginal(fileName) },
+        data: { fileName, passages, hasFile: await hasOriginal(fileName) },
       });
     } catch (error) {
       console.log("[ERROR]", error);
